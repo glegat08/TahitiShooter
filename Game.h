@@ -11,11 +11,6 @@ public:
 
 private:
 	// Define the member variables
-	sf::Texture playerTexture;
-	sf::Sprite player;
-	sf::Texture enemyTexture;
-	sf::Sprite enemy;
-
 
 	// Define the member functions
 	void initPlayer();
