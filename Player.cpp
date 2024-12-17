@@ -30,7 +30,7 @@ bool Player::isAttacking()
 
 bool Player::isInvulnerable()
 {
-    return false;
+    return m_isInvulnerable && m_invulnerableClock.getElapsedTime().asSeconds() < 0.5f;
 }
 
 void Player::setTexture()
@@ -48,7 +48,7 @@ void Player::setTexture()
     m_idleSprite.setScale(2.f, 2.f);
 
     // IDLE POS = MOVEMENT POS
-    m_idleSprite.setPosition(m_playerSprite.getPosition());
+    m_idleSprite.setPosition(getPlayerPosition());
 }
 
 void Player::updateAnim()
@@ -75,34 +75,52 @@ void Player::updateAnim()
 
 void Player::movement()
 {
+    sf::Vector2f currentPos = getPlayerPosition();
     m_isIdle = true;
 
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z))
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
     {
-        m_playerSprite.move(0.f, -4.f);
-        m_currentDirection = TOP;
-        m_isIdle = false;
-    }
-    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-    {
-        m_playerSprite.move(0.f, 4.f);
-        m_currentDirection = BOTTOM;
-        m_isIdle = false;
-    }
-    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
-    {
-        m_playerSprite.move(-4.f, 0.f);
-        m_currentDirection = LEFT;
-        m_isIdle = false;
+        float leftX = currentPos.x - 4.f;
+        if (leftX >= 50.f) // SIZE OF MAP.X (LEFT)
+        {
+            m_playerSprite.move(-4.f, 0.f);
+            m_currentDirection = LEFT;
+            m_isIdle = false;
+        }
     }
     else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
     {
-        m_playerSprite.move(4.f, 0.f);
-        m_currentDirection = RIGHT;
-        m_isIdle = false;
+        float rightX = currentPos.x + 4.f;
+        if (rightX <= 1645.f) // SIZE OF MAP.X (RIGHT)
+        {
+            m_playerSprite.move(4.f, 0.f);
+            m_currentDirection = RIGHT;
+            m_isIdle = false;
+        }
     }
 
-    m_idleSprite.setPosition(m_playerSprite.getPosition());
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z))
+    {
+        float upY = currentPos.y - 4.f;
+        if (upY >= 80.f) // SIZE OF MAP.Y (UP)
+        {
+            m_playerSprite.move(0.f, -4.f);
+            m_currentDirection = TOP;
+            m_isIdle = false;
+        }
+    }
+    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+    {
+        float downY = currentPos.y + 4.f;
+        if (downY <= 830.f) // SIZE OF MAP.Y (DOWN)
+        {
+            m_playerSprite.move(0.f, 4.f);
+            m_currentDirection = BOTTOM;
+            m_isIdle = false;
+        }
+    }
+
+    m_idleSprite.setPosition(getPlayerPosition());
 }
 
 void Player::getShield()
@@ -125,6 +143,45 @@ void Player::switchWeapon()
 {
 }
 
-void Player::setInvulnerable()
+void Player::setInvulnerable(float duration)
 {
+    m_isInvulnerable = true;
+    m_invulnerableClock.restart();
+}
+
+void Player::pushPlayer(const sf::Vector2f& enemyPos)
+{
+    sf::Vector2f direction = m_playerSprite.getPosition() - enemyPos;
+    direction = direction / std::sqrt(direction.x * direction.x + direction.y * direction.y);
+
+    m_playerSprite.move(-direction.x * -50.f, -direction.y * -50.f);
+}
+
+sf::Vector2f Player::getPlayerPosition()
+{
+	return m_playerSprite.getPosition();
+}
+
+const sf::Sprite& Player::getPlayerSprite() const
+{
+    return m_playerSprite;
+}
+
+sf::FloatRect Player::getHitbox() const
+{
+    sf::FloatRect spriteBounds = m_playerSprite.getGlobalBounds();
+
+    // FREE TO MODIFY THE HITBOX
+    float offsetX = spriteBounds.width * 0.4f;
+    float offsetY = spriteBounds.height * 0.35f;
+    float reducedWidth = spriteBounds.width - 2 * offsetX;
+    float reducedHeight = spriteBounds.height - 2 * offsetY;
+
+    return sf::FloatRect
+    (
+        spriteBounds.left + offsetX,
+        spriteBounds.top + offsetY,
+        reducedWidth,
+        reducedHeight
+    );
 }

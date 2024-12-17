@@ -3,11 +3,20 @@
 #include "Enemy.h"
 
 Game::Game(sf::RenderWindow* window, const float& framerate)
-    : SceneBase(window, framerate)
+	: SceneBase(window, framerate)
 {
     setMapTexture(window);
     setPlayer();
-    setEnemiesCount(10);
+    setEnemiesCount(1);
+}
+
+Game::~Game()
+{
+	delete m_player;
+	for (Enemy* enemy : m_enemies)
+	{
+		delete enemy;
+	}
 }
 
 void Game::setMapTexture(sf::RenderWindow* window)
@@ -33,7 +42,7 @@ void Game::setEnemiesCount(int count)
 
 void Game::spawnEnemy(sf::RenderWindow* window)
 {
-    Enemy* enemy = new Enemy(window);
+    Enemy* enemy = new Enemy(window, m_player);
     m_enemies.push_back(enemy);
 }
 
@@ -43,11 +52,6 @@ void Game::removeDeadEnemies()
         {
         return !enemy->isAlive();
         }), m_enemies.end());
-}
-
-sf::Vector2f Game::getPlayerPosition() const
-{
-    return m_player->m_playerSprite.getPosition();
 }
 
 void Game::setAudio()
@@ -85,7 +89,23 @@ void Game::render()
     for (Enemy* enemy : m_enemies)
     {
         m_renderWindow->draw(enemy->m_enemySprite);
+
+        sf::FloatRect enemyHitbox = enemy->getHitbox();
+        sf::RectangleShape enemyHitboxShape(sf::Vector2f(enemyHitbox.width, enemyHitbox.height));
+        enemyHitboxShape.setPosition(enemyHitbox.left, enemyHitbox.top);
+        enemyHitboxShape.setFillColor(sf::Color::Transparent);
+        enemyHitboxShape.setOutlineColor(sf::Color::Red);
+        enemyHitboxShape.setOutlineThickness(1.f);
+        m_renderWindow->draw(enemyHitboxShape);
     }
+
+    sf::FloatRect playerHitbox = m_player->getHitbox();
+    sf::RectangleShape playerHitboxShape(sf::Vector2f(playerHitbox.width, playerHitbox.height));
+    playerHitboxShape.setPosition(playerHitbox.left, playerHitbox.top);
+    playerHitboxShape.setFillColor(sf::Color::Transparent);
+    playerHitboxShape.setOutlineColor(sf::Color::Green);
+    playerHitboxShape.setOutlineThickness(1.f);
+    m_renderWindow->draw(playerHitboxShape);
 }
 
 void Game::update(const float& deltaTime)
@@ -95,8 +115,14 @@ void Game::update(const float& deltaTime)
 
     for (Enemy* enemy : m_enemies)
     {
-        enemy->updateAnim();
-        enemy->moveTowardsPlayer(getPlayerPosition());
+        //enemy->updateAnim();
+        //enemy->moveTowardsPlayer(m_player->getPlayerPosition());
+
+        if (m_player->getHitbox().intersects(enemy->getHitbox()) && !m_player->isInvulnerable())
+        {
+            m_player->pushPlayer(enemy->m_enemySprite.getPosition());
+            m_player->setInvulnerable(0.5f); 
+        }
     }
 
     removeDeadEnemies();

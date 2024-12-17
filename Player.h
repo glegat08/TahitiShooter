@@ -22,7 +22,13 @@ public:
 	void getHit() override;
 	void getWeapon() override;
 	void switchWeapon() override;
-	void setInvulnerable() override;
+	void setInvulnerable(float duration) override;
+	void pushPlayer(const sf::Vector2f& enemyPos);
+
+	// OTHER METHOD
+	sf::Vector2f getPlayerPosition();
+	const sf::Sprite& getPlayerSprite() const;
+	sf::FloatRect getHitbox() const;
 
 	// PUBLIC PARAMETERS
 	sf::Texture m_texture;
@@ -41,6 +47,11 @@ private:
 	const int m_numDirections = 4;
 	int m_currentFrame = 0;
 	int m_currentDirection = 0;
+
+	// GAMEPLAY
+	sf::Clock m_invulnerableClock;
+	bool m_isInvulnerable = false;
+	sf::FloatRect m_hitbox;
 
 	int m_health;
 	int m_shield;

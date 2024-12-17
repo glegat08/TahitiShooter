@@ -1,9 +1,10 @@
 #include "Enemy.h"
 #include "SceneBase.h"
+#include "Player.h"
 
-Enemy::Enemy(sf::RenderWindow* window)
+Enemy::Enemy(sf::RenderWindow* window, Player* player)
+	: m_renderWindow(window), m_player(player)
 {
-    m_renderWindow = window;
 	setTexture();
 	randomPos(window);
 }
@@ -56,6 +57,12 @@ void Enemy::updateAnim()
 
 void Enemy::movement()
 {
+    moveTowardsPlayer(m_player->getPlayerPosition());
+
+    if (checkCollision())
+    {
+        m_player->pushPlayer(m_enemySprite.getPosition());
+    }
 }
 
 void Enemy::moveTowardsPlayer(const sf::Vector2f& playerPos)
@@ -63,8 +70,22 @@ void Enemy::moveTowardsPlayer(const sf::Vector2f& playerPos)
     sf::Vector2f direction = playerPos - m_enemySprite.getPosition();
     float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
 
-    if (distance > 0.1f)
-        m_enemySprite.move((direction / distance) * 2.f);
+    if (distance > 100.f)
+    {
+        float angle = std::atan2(direction.y, direction.x) * 180.f / 3.14159265f;
+
+        //angle -= 90;
+        m_enemySprite.setRotation(angle);
+        m_enemySprite.move((direction / distance) * 1.5f);
+    }
+}
+
+bool Enemy::checkCollision()
+{
+    sf::FloatRect playerRect = m_player->getPlayerSprite().getGlobalBounds();
+    sf::FloatRect enemyRect = m_enemySprite.getGlobalBounds();
+
+    return playerRect.intersects(enemyRect);
 }
 
 void Enemy::getShield()
@@ -87,7 +108,7 @@ void Enemy::switchWeapon()
 {
 }
 
-void Enemy::setInvulnerable()
+void Enemy::setInvulnerable(float duration)
 {
 }
 
@@ -96,6 +117,25 @@ void Enemy::randomPos(sf::RenderWindow* window)
 	float x = rand() % window->getSize().x;
 	float y = rand() % window->getSize().y;
 	m_enemySprite.setPosition(x, y);
+}
+
+sf::FloatRect Enemy::getHitbox() const
+{
+    sf::FloatRect spriteBounds = m_enemySprite.getGlobalBounds();
+
+    // FREE TO MODIFY THE HITBOX
+    float offsetX = spriteBounds.width * 0.1f;
+    float offsetY = spriteBounds.height * 0.2f;
+    float reducedWidth = spriteBounds.width - 2 * offsetX;
+    float reducedHeight = spriteBounds.height - 2 * offsetY;
+
+    return sf::FloatRect
+    (
+        spriteBounds.left + offsetX,
+        spriteBounds.top + offsetY,
+        reducedWidth,
+        reducedHeight
+    );
 }
 
 //void Enemy::resetPosition()
@@ -107,19 +147,19 @@ void Enemy::randomPos(sf::RenderWindow* window)
 //    int side = rand() % 4;
 //    switch (side)
 //    {
-//    case 0: // Gauche
+//    case 0:
 //        x = 0;
 //        y = rand() % windowHeight;
 //        break;
-//    case 1: // Droite
+//    case 1:
 //        x = windowWidth;
 //        y = rand() % windowHeight;
 //        break;
-//    case 2: // Haut
+//    case 2:
 //        x = rand() % windowWidth;
 //        y = 0;
 //        break;
-//    case 3: // Bas
+//    case 3:
 //        x = rand() % windowWidth;
 //        y = windowHeight;
 //        break;

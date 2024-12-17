@@ -1,17 +1,19 @@
 #pragma once
 
 #include "GameObject.h"
+#include "Player.h"
 
 class Enemy : public GameObject
 {
 public:
-	Enemy(sf::RenderWindow* window);
+	Enemy(sf::RenderWindow* window, Player* player);
 
 	// BOOL METHOD
 	bool isAlive() override;
 	bool isShooting() override;
 	bool isAttacking() override;
 	bool isInvulnerable() override;
+	bool checkCollision();
 
 	// VOID METHOD
 	void setTexture() override;
@@ -23,9 +25,12 @@ public:
 	void getHit() override;
 	void getWeapon() override;
 	void switchWeapon() override;
-	void setInvulnerable() override;
+	void setInvulnerable(float duration) override;
 	void randomPos(sf::RenderWindow* window);
 	void resetPosition();
+
+	// OTHER METHOD
+	sf::FloatRect getHitbox() const;
 
 	// PUBLIC PARAMETERS
 	sf::Texture m_texture;
@@ -43,7 +48,13 @@ private:
 
 	// ENEMY POS
 	sf::RenderWindow* m_renderWindow;
+	Player* m_player;
 
 	int m_health;
 	int m_shield;
+};
+
+class CrabEnemy : public GameObject
+{
+
 };

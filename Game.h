@@ -8,6 +8,7 @@ class Game : public SceneBase
 {
 public:
     Game(sf::RenderWindow* window, const float& framerate);
+    ~Game();
 
 
     // PLAYER
@@ -17,7 +18,6 @@ public:
     void setEnemiesCount(int count);
     void spawnEnemy(sf::RenderWindow* window);
     void removeDeadEnemies();
-    sf::Vector2f getPlayerPosition() const;
 
     // GAME MAP
     void setMapTexture(sf::RenderWindow* window);

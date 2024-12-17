@@ -24,5 +24,5 @@ public:
 	virtual void getHit() = 0;
 	virtual void getWeapon() = 0;
 	virtual void switchWeapon() = 0;
-	virtual void setInvulnerable() = 0;
+	virtual void setInvulnerable(float duration) = 0;
 };
