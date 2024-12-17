@@ -1,31 +1,37 @@
 #pragma once
 
-#include <SFML/Graphics.hpp>
+#include "SceneBase.h"
+class Player;
+class Enemy;
 
-class Game
+class Game : public SceneBase
 {
 public:
-	// Constructor and destructor
-	Game() = default;
-	virtual ~Game() = default;
+    Game(sf::RenderWindow* window, const float& framerate);
+
+
+    // PLAYER
+    void setPlayer();
+
+    // ENEMIES
+    void setEnemiesCount(int count);
+    void spawnEnemy(sf::RenderWindow* window);
+    void removeDeadEnemies();
+    sf::Vector2f getPlayerPosition() const;
+
+    // GAME MAP
+    void setMapTexture(sf::RenderWindow* window);
+    void setAudio();
+    void processInput(const sf::Event& event) override;
+    void update(const float& deltaTime) override;
+    void render() override;
 
 private:
-	// Define the member variables
+    sf::Music m_gameMusic;
+    sf::Texture m_map;
+    sf::Sprite m_mapSprite;
 
-	// Define the member functions
-	void initPlayer();
-	void initEnemy();
-	void initLevel();
-	void update();
-	void render();
-	void handleInput();
-	void checkCollision();
-	void handleWinCondition();
-	void handleLoseCondition();
-	void saveGame();
-	void loadGame();
-	void resetGame();
-	void quitGame();
-
-	// Add any other necessary member functions and variables here
+    Player* m_player;
+    std::vector<Enemy*> m_enemies;
+    int m_enemiesCount;
 };

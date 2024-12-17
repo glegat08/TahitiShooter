@@ -1,11 +1,11 @@
-#include <SFML/Graphics.hpp>
-#include "Game.h"
+#include "myGame.h"
 
 int main()
 {
-    Game game;
+    SceneManager sceneManager(1920, 1080, "Tahiti Shooter");
+    myGame game(sceneManager);
 
-    game.render();
+    game.exec();
 
     return 0;
 }

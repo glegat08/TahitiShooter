@@ -2,84 +2,107 @@
 #include "Player.h"
 #include "Enemy.h"
 
-void Game::initPlayer()
+Game::Game(sf::RenderWindow* window, const float& framerate)
+    : SceneBase(window, framerate)
 {
-	player.setPosition(100, 100);
-	player.setTexture(playerTexture);
+    setMapTexture(window);
+    setPlayer();
+    setEnemiesCount(10);
 }
 
-void Game::initEnemy()
+void Game::setMapTexture(sf::RenderWindow* window)
 {
-	enemy.setPosition(200, 200);
-	enemy.setTexture(enemyTexture);
+    m_map.loadFromFile("C:\\Users\\guill\\Downloads\\beach.png");
+    m_mapSprite.setTexture(m_map);
 }
 
-void Game::initLevel()
+void Game::setPlayer()
 {
+    m_player = new Player();
+    m_player->m_playerSprite.setPosition(m_renderWindow->getSize().x / 2.f, m_renderWindow->getSize().y / 2.f);
 }
 
-void Game::update()
+void Game::setEnemiesCount(int count)
 {
-	player.move(0, 0);
-	enemy.move(0, 0);
+    m_enemiesCount = count;
+    while (m_enemies.size() < m_enemiesCount)
+    {
+        spawnEnemy(m_renderWindow);
+    }
+}
+
+void Game::spawnEnemy(sf::RenderWindow* window)
+{
+    Enemy* enemy = new Enemy(window);
+    m_enemies.push_back(enemy);
+}
+
+void Game::removeDeadEnemies()
+{
+    m_enemies.erase(std::remove_if(m_enemies.begin(), m_enemies.end(), [](Enemy* enemy) 
+        {
+        return !enemy->isAlive();
+        }), m_enemies.end());
+}
+
+sf::Vector2f Game::getPlayerPosition() const
+{
+    return m_player->m_playerSprite.getPosition();
+}
+
+void Game::setAudio()
+{
+    m_gameMusic.openFromFile("C:\\Users\\guill\\Downloads\\AirFight.mp3");
+    m_gameMusic.setVolume(10);
+    m_gameMusic.play();
+}
+
+void Game::processInput(const sf::Event& event)
+{
+    //if (event.type == sf::Event::KeyPressed)
+    //{
+    //    // Exemple de mouvements du joueur
+    //    if (event.key.code == sf::Keyboard::Left)
+    //        m_player->m_sprite.move(-5.f, 0.f);
+    //    else if (event.key.code == sf::Keyboard::Right)
+    //        m_player->m_sprite.move(5.f, 0.f);
+    //    else if (event.key.code == sf::Keyboard::Up)
+    //        m_player->m_sprite.move(0.f, -5.f);
+    //    else if (event.key.code == sf::Keyboard::Down)
+    //        m_player->m_sprite.move(0.f, 5.f);
+    //}
 }
 
 void Game::render()
 {
-	sf::RenderWindow window(sf::VideoMode(1280, 720), "Tahiti Shooter");
+    m_renderWindow->draw(m_mapSprite);
 
-	while (window.isOpen())
-	{
-		sf::Event event;
-		while (window.pollEvent(event))
-		{
-			if (event.type == sf::Event::Closed)
-				window.close();
-		}
+    if (m_player->m_isIdle)
+        m_renderWindow->draw(m_player->m_idleSprite);
+    else
+        m_renderWindow->draw(m_player->m_playerSprite);
 
-		window.clear();
-		window.draw(player);
-		window.draw(enemy);
-		window.display();
-	}
+    for (Enemy* enemy : m_enemies)
+    {
+        m_renderWindow->draw(enemy->m_enemySprite);
+    }
 }
 
-void Game::handleInput()
+void Game::update(const float& deltaTime)
 {
-	// TODO: Implement handle input
-}
+    m_player->movement();
+    m_player->updateAnim();
 
-void Game::checkCollision()
-{
-	// TODO: Implement collision detection
-}
+    for (Enemy* enemy : m_enemies)
+    {
+        enemy->updateAnim();
+        enemy->moveTowardsPlayer(getPlayerPosition());
+    }
 
-void Game::handleWinCondition()
-{
-	// TODO: Implement winning condition
-}
+    removeDeadEnemies();
 
-void Game::handleLoseCondition()
-{
-	// TODO: Implement losing condition
-}
-
-void Game::saveGame()
-{
-	// TODO: Implement saving game state
-}
-
-void Game::loadGame()
-{
-	// TODO: Implement loading game state
-}
-
-void Game::resetGame()
-{
-	// TODO: Implement resetting game state
-}
-
-void Game::quitGame()
-{
-	// TODO: Implement quitting the game
+    while (m_enemies.size() < m_enemiesCount)
+    {
+        spawnEnemy(m_renderWindow);
+    }
 }
