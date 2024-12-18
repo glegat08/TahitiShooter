@@ -123,15 +123,17 @@ void Player::movement()
     m_idleSprite.setPosition(getPlayerPosition());
 }
 
-void Player::getShield()
+int Player::getShield()
 {
+    return 0;
 }
 
-void Player::getHp()
+int Player::getHp()
 {
+    return 0;
 }
 
-void Player::getHit()
+void Player::takeDamage(int damage)
 {
 }
 

@@ -3,58 +3,96 @@
 #include "GameObject.h"
 #include "Player.h"
 
-class Enemy : public GameObject
+class Enemy : public GameObject 
 {
 public:
-	Enemy(sf::RenderWindow* window, Player* player);
+    Enemy(sf::RenderWindow* window, Player* player);
+    virtual ~Enemy() = default;
 
-	// BOOL METHOD
-	bool isAlive() override;
-	bool isShooting() override;
-	bool isAttacking() override;
-	bool isInvulnerable() override;
-	bool checkCollision();
+    // Pure virtual methods
+    virtual sf::Sprite& getSprite() = 0;
+    virtual sf::FloatRect getHitbox() const = 0;
 
-	// VOID METHOD
-	void setTexture() override;
-	void updateAnim() override;
-	void movement() override;
-	void moveTowardsPlayer(const sf::Vector2f& playerPos);
-	void getShield() override;
-	void getHp() override;
-	void getHit() override;
-	void getWeapon() override;
-	void switchWeapon() override;
-	void setInvulnerable(float duration) override;
-	void randomPos(sf::RenderWindow* window);
-	void resetPosition();
+    virtual bool isAlive() override;
+    virtual bool isShooting() override;
+    virtual bool isAttacking() override;
+    virtual bool isInvulnerable() override;
 
-	// OTHER METHOD
-	sf::FloatRect getHitbox() const;
+    virtual void setTexture() override;
+    virtual void updateAnim() override;
+    virtual void movement() override;
+    virtual void randomPos(sf::RenderWindow* window);
 
-	// PUBLIC PARAMETERS
-	sf::Texture m_texture;
-	sf::Sprite m_enemySprite;
+protected:
+    sf::RenderWindow* m_renderWindow;
+    Player* m_player;
 
-private:
-	// ANIMATION
-	sf::Clock m_animationClock;
-	const int m_frameWidth = 52;
-	const int m_frameHeight = 80;
-	const int m_numFrames = 5;
-	const int m_numDirections = 0;
-	int m_currentFrame = 0;
-	int m_currentDirection = 0;
-
-	// ENEMY POS
-	sf::RenderWindow* m_renderWindow;
-	Player* m_player;
-
-	int m_health;
-	int m_shield;
+    int m_health = 100;
+    int m_shield = 0;
 };
 
-class CrabEnemy : public GameObject
-{
 
+// Subclass SharkEnemy
+class SharkEnemy : public Enemy 
+{
+public:
+    SharkEnemy(sf::RenderWindow* window, Player* player);
+
+    void setTexture() override;
+    void movement() override;
+    bool isShooting() override;
+    int getHp() override;
+    int getShield() override;
+    void takeDamage(int damage) override;
+    void setInvulnerable(float duration) override;
+    void getWeapon() override;
+    void switchWeapon() override;
+    void updateAnim() override;
+
+    sf::Sprite& getSprite() override;
+    sf::FloatRect getHitbox() const;
+
+private:
+    void moveAlongBorder();
+    sf::Clock m_animationClock;
+    int m_currentFrame = 0;
+    int m_frameWidth = 52;
+    int m_frameHeight = 80;
+    int m_numFrames = 5;
+
+
+    sf::Texture m_sharkTexture;
+	sf::Sprite m_sharkSprite;
+};
+
+// Subclass CrabEnemy
+class CrabEnemy : public Enemy 
+{
+public:
+    CrabEnemy(sf::RenderWindow* window, Player* player);
+
+    void setTexture() override;
+    void movement() override;
+    bool isAttacking() override;
+    int getHp() override;
+    int getShield() override;
+    void takeDamage(int damage) override;
+    void setInvulnerable(float duration) override;
+    void getWeapon() override;
+    void switchWeapon() override;
+    void updateAnim() override;
+
+    sf::Sprite& getSprite() override;
+    sf::FloatRect getHitbox() const;
+
+private:
+	sf::Texture m_crabTexture;
+	sf::Sprite m_crabSprite;
+    sf::Clock m_animationClock;
+    int m_currentFrame = 0;
+    int m_frameWidth = 55;
+    int m_frameHeight = 50;
+    int m_numFrames = 4;
+
+    void moveTowardsPlayer(const sf::Vector2f& playerPos, float speed);
 };

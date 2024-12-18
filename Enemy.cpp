@@ -1,169 +1,231 @@
 #include "Enemy.h"
-#include "SceneBase.h"
-#include "Player.h"
+#include <cmath>
 
+// Base Enemy Class
 Enemy::Enemy(sf::RenderWindow* window, Player* player)
-	: m_renderWindow(window), m_player(player)
+    : m_renderWindow(window), m_player(player) 
 {
-	setTexture();
-	randomPos(window);
+    randomPos(window);
 }
 
-bool Enemy::isAlive()
+bool Enemy::isAlive() 
 {
-    //if (m_health <= 0)
-    //{
-    //    //resetPosition();
-    //    m_health = 100;
-    //    return false;
-    //}
+    return m_health > 0;
+}
+
+bool Enemy::isShooting() 
+{
+    return false;
+}
+
+bool Enemy::isAttacking() 
+{
+    return false;
+}
+
+bool Enemy::isInvulnerable() 
+{
+    return false;
+}
+
+void Enemy::setTexture() 
+{
+}
+
+void Enemy::updateAnim() 
+{
+}
+
+void Enemy::movement() 
+{
+}
+
+void Enemy::randomPos(sf::RenderWindow* window) 
+{
+    sf::Vector2u windowSize = window->getSize();
+    float x = static_cast<float>(rand() % windowSize.x);
+    float y = static_cast<float>(rand() % windowSize.y);
+
+    // Positionne l'ennemi
+    if (auto* shark = dynamic_cast<SharkEnemy*>(this))
+        shark->getSprite().setPosition(x, y);
+    else if (auto* crab = dynamic_cast<CrabEnemy*>(this))
+        crab->getSprite().setPosition(x, y);
+}
+
+// SharkEnemy Class
+SharkEnemy::SharkEnemy(sf::RenderWindow* window, Player* player)
+    : Enemy(window, player) 
+{
+    setTexture();
+    randomPos(window);
+}
+
+void SharkEnemy::setTexture()
+{
+    m_sharkTexture.loadFromFile("C:\\Users\\guill\\Downloads\\shark.png");
+    m_sharkSprite.setTexture(m_sharkTexture);
+}
+
+void SharkEnemy::movement() 
+{
+    moveAlongBorder();
+}
+
+void SharkEnemy::moveAlongBorder() 
+{
+    sf::Vector2f pos = m_sharkSprite.getPosition();
+    sf::Vector2u windowSize = m_renderWindow->getSize();
+
+    if (pos.x <= 0 || pos.x >= windowSize.x - m_frameWidth) 
+    {
+        m_sharkSprite.move(0.f, 2.f);
+    }
+    else if (pos.y <= 0 || pos.y >= windowSize.y - m_frameHeight) 
+    {
+        m_sharkSprite.move(2.f, 0.f);
+    }
+    else 
+    {
+        m_sharkSprite.move(-2.f, 0.f);
+    }
+}
+
+bool SharkEnemy::isShooting() 
+{
     return true;
 }
 
-bool Enemy::isShooting()
+int SharkEnemy::getHp()
 {
-	return false;
+    return 0;
 }
 
-bool Enemy::isAttacking()
+int SharkEnemy::getShield()
 {
-	return false;
+    return 0;
 }
 
-bool Enemy::isInvulnerable()
+void SharkEnemy::takeDamage(int damage)
 {
-	return false;
 }
 
-void Enemy::setTexture()
+void SharkEnemy::setInvulnerable(float duration)
 {
-	m_texture.loadFromFile("C:\\Users\\guill\\Downloads\\shark.png");
-	m_enemySprite.setTexture(m_texture);
-    m_enemySprite.setTextureRect(sf::IntRect(0, 0, m_frameWidth, m_frameHeight));
-    m_enemySprite.setScale(1.5f, 1.5f);
 }
 
-void Enemy::updateAnim()
+void SharkEnemy::getWeapon()
+{
+}
+
+void SharkEnemy::switchWeapon()
+{
+}
+
+void SharkEnemy::updateAnim()
 {
     if (m_animationClock.getElapsedTime().asSeconds() > 0.2f)
     {
-		m_currentFrame = (m_currentFrame + 1) % m_numFrames;
-		int left = m_currentFrame * m_frameWidth;
-		int top = 0;
-		m_enemySprite.setTextureRect(sf::IntRect(left, top, m_frameWidth, m_frameHeight));
-		m_animationClock.restart();
-	}
-}
+        m_currentFrame = (m_currentFrame + 1) % m_numFrames;
+        int textureX = m_currentFrame * m_frameWidth;
 
-void Enemy::movement()
-{
-    moveTowardsPlayer(m_player->getPlayerPosition());
+        m_sharkSprite.setTextureRect(sf::IntRect(textureX, 0, m_frameWidth, m_frameHeight));
 
-    if (checkCollision())
-    {
-        m_player->pushPlayer(m_enemySprite.getPosition());
+        m_animationClock.restart();
     }
 }
 
-void Enemy::moveTowardsPlayer(const sf::Vector2f& playerPos)
+sf::Sprite& SharkEnemy::getSprite()
 {
-    sf::Vector2f direction = playerPos - m_enemySprite.getPosition();
-    float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+    return m_sharkSprite;
+}
 
-    if (distance > 100.f)
+sf::FloatRect SharkEnemy::getHitbox() const
+{
+    return m_sharkSprite.getGlobalBounds();
+}
+
+
+// CrabEnemy Class
+CrabEnemy::CrabEnemy(sf::RenderWindow* window, Player* player)
+    : Enemy(window, player) 
+{
+    setTexture();
+    randomPos(window);
+}
+
+void CrabEnemy::setTexture() 
+{
+    m_crabTexture.loadFromFile("C:\\Users\\guill\\Downloads\\crabWalk.png");
+    m_crabSprite.setTexture(m_crabTexture);
+}
+
+void CrabEnemy::movement() 
+{
+    moveTowardsPlayer(m_player->getPlayerPosition(), 1.f);
+}
+
+bool CrabEnemy::isAttacking() 
+{
+    return true;
+}
+
+int CrabEnemy::getHp()
+{
+    return 0;
+}
+
+int CrabEnemy::getShield()
+{
+    return 0;
+}
+
+void CrabEnemy::takeDamage(int damage)
+{
+}
+
+void CrabEnemy::setInvulnerable(float duration)
+{
+}
+
+void CrabEnemy::getWeapon()
+{
+}
+
+void CrabEnemy::switchWeapon()
+{
+}
+
+void CrabEnemy::updateAnim()
+{
+    if (m_animationClock.getElapsedTime().asSeconds() > 0.2f)
     {
-        float angle = std::atan2(direction.y, direction.x) * 180.f / 3.14159265f;
+        m_currentFrame = (m_currentFrame + 1) % m_numFrames;
+        int textureX = m_currentFrame * m_frameWidth;
 
-        //angle -= 90;
-        m_enemySprite.setRotation(angle);
-        m_enemySprite.move((direction / distance) * 1.5f);
+        m_crabSprite.setTextureRect(sf::IntRect(textureX, 0, m_frameWidth, m_frameHeight));
+
+        m_animationClock.restart();
     }
 }
 
-bool Enemy::checkCollision()
+sf::Sprite& CrabEnemy::getSprite()
 {
-    sf::FloatRect playerRect = m_player->getPlayerSprite().getGlobalBounds();
-    sf::FloatRect enemyRect = m_enemySprite.getGlobalBounds();
-
-    return playerRect.intersects(enemyRect);
+    return m_crabSprite;
 }
 
-void Enemy::getShield()
+sf::FloatRect CrabEnemy::getHitbox() const
 {
+    return m_crabSprite.getGlobalBounds();
 }
 
-void Enemy::getHp()
+void CrabEnemy::moveTowardsPlayer(const sf::Vector2f& playerPos, float speed)
 {
+	float dx = playerPos.x - m_crabSprite.getPosition().x;
+	float dy = playerPos.y - m_crabSprite.getPosition().y;
+
+	float distance = std::sqrt(dx * dx + dy * dy);
+	dx /= distance;
+	dy /= distance;
+	m_crabSprite.move(dx * speed, dy * speed);
 }
-
-void Enemy::getHit()
-{
-}
-
-void Enemy::getWeapon()
-{
-}
-
-void Enemy::switchWeapon()
-{
-}
-
-void Enemy::setInvulnerable(float duration)
-{
-}
-
-void Enemy::randomPos(sf::RenderWindow* window)
-{
-	float x = rand() % window->getSize().x;
-	float y = rand() % window->getSize().y;
-	m_enemySprite.setPosition(x, y);
-}
-
-sf::FloatRect Enemy::getHitbox() const
-{
-    sf::FloatRect spriteBounds = m_enemySprite.getGlobalBounds();
-
-    // FREE TO MODIFY THE HITBOX
-    float offsetX = spriteBounds.width * 0.1f;
-    float offsetY = spriteBounds.height * 0.2f;
-    float reducedWidth = spriteBounds.width - 2 * offsetX;
-    float reducedHeight = spriteBounds.height - 2 * offsetY;
-
-    return sf::FloatRect
-    (
-        spriteBounds.left + offsetX,
-        spriteBounds.top + offsetY,
-        reducedWidth,
-        reducedHeight
-    );
-}
-
-//void Enemy::resetPosition()
-//{
-//    int x, y;
-//    int windowWidth = m_renderWindow->getSize().x;
-//    int windowHeight = m_renderWindow->getSize().y;
-//
-//    int side = rand() % 4;
-//    switch (side)
-//    {
-//    case 0:
-//        x = 0;
-//        y = rand() % windowHeight;
-//        break;
-//    case 1:
-//        x = windowWidth;
-//        y = rand() % windowHeight;
-//        break;
-//    case 2:
-//        x = rand() % windowWidth;
-//        y = 0;
-//        break;
-//    case 3:
-//        x = rand() % windowWidth;
-//        y = windowHeight;
-//        break;
-//    }
-//
-//    m_sprite.setPosition(static_cast<float>(x), static_cast<float>(y));
-//}

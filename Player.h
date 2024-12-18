@@ -17,9 +17,9 @@ public:
 	void setTexture() override;
 	void updateAnim() override;
 	void movement() override;
-	void getShield() override;
-	void getHp() override;
-	void getHit() override;
+	int getShield() override;
+	int getHp() override;
+	void takeDamage(int damage) override;
 	void getWeapon() override;
 	void switchWeapon() override;
 	void setInvulnerable(float duration) override;

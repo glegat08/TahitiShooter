@@ -7,7 +7,7 @@ Game::Game(sf::RenderWindow* window, const float& framerate)
 {
     setMapTexture(window);
     setPlayer();
-    setEnemiesCount(1);
+    setEnemiesCount(3);
 }
 
 Game::~Game()
@@ -40,10 +40,14 @@ void Game::setEnemiesCount(int count)
     }
 }
 
-void Game::spawnEnemy(sf::RenderWindow* window)
+void Game::spawnEnemy(sf::RenderWindow* window) 
 {
-    Enemy* enemy = new Enemy(window, m_player);
-    m_enemies.push_back(enemy);
+    if (rand() % 2 == 0) {
+        m_enemies.push_back(new SharkEnemy(window, m_player));
+    }
+    else {
+        m_enemies.push_back(new CrabEnemy(window, m_player));
+    }
 }
 
 void Game::removeDeadEnemies()
@@ -63,18 +67,6 @@ void Game::setAudio()
 
 void Game::processInput(const sf::Event& event)
 {
-    //if (event.type == sf::Event::KeyPressed)
-    //{
-    //    // Exemple de mouvements du joueur
-    //    if (event.key.code == sf::Keyboard::Left)
-    //        m_player->m_sprite.move(-5.f, 0.f);
-    //    else if (event.key.code == sf::Keyboard::Right)
-    //        m_player->m_sprite.move(5.f, 0.f);
-    //    else if (event.key.code == sf::Keyboard::Up)
-    //        m_player->m_sprite.move(0.f, -5.f);
-    //    else if (event.key.code == sf::Keyboard::Down)
-    //        m_player->m_sprite.move(0.f, 5.f);
-    //}
 }
 
 void Game::render()
@@ -88,24 +80,8 @@ void Game::render()
 
     for (Enemy* enemy : m_enemies)
     {
-        m_renderWindow->draw(enemy->m_enemySprite);
-
-        sf::FloatRect enemyHitbox = enemy->getHitbox();
-        sf::RectangleShape enemyHitboxShape(sf::Vector2f(enemyHitbox.width, enemyHitbox.height));
-        enemyHitboxShape.setPosition(enemyHitbox.left, enemyHitbox.top);
-        enemyHitboxShape.setFillColor(sf::Color::Transparent);
-        enemyHitboxShape.setOutlineColor(sf::Color::Red);
-        enemyHitboxShape.setOutlineThickness(1.f);
-        m_renderWindow->draw(enemyHitboxShape);
+        m_renderWindow->draw(enemy->getSprite());
     }
-
-    sf::FloatRect playerHitbox = m_player->getHitbox();
-    sf::RectangleShape playerHitboxShape(sf::Vector2f(playerHitbox.width, playerHitbox.height));
-    playerHitboxShape.setPosition(playerHitbox.left, playerHitbox.top);
-    playerHitboxShape.setFillColor(sf::Color::Transparent);
-    playerHitboxShape.setOutlineColor(sf::Color::Green);
-    playerHitboxShape.setOutlineThickness(1.f);
-    m_renderWindow->draw(playerHitboxShape);
 }
 
 void Game::update(const float& deltaTime)
@@ -115,13 +91,13 @@ void Game::update(const float& deltaTime)
 
     for (Enemy* enemy : m_enemies)
     {
-        //enemy->updateAnim();
-        //enemy->moveTowardsPlayer(m_player->getPlayerPosition());
+        enemy->updateAnim();
+        enemy->movement();
 
         if (m_player->getHitbox().intersects(enemy->getHitbox()) && !m_player->isInvulnerable())
         {
-            m_player->pushPlayer(enemy->m_enemySprite.getPosition());
-            m_player->setInvulnerable(0.5f); 
+            m_player->pushPlayer(enemy->getSprite().getPosition());
+            m_player->setInvulnerable(0.5f);
         }
     }
 
