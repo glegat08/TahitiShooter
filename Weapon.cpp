@@ -39,15 +39,16 @@ void PlayerProjectile::movement()
 }
 
 // Enemy Projectile
-EnemyProjectile::EnemyProjectile(sf::RenderWindow* window, const sf::Vector2f& targetPosition)
+EnemyProjectile::EnemyProjectile(sf::RenderWindow* window, const sf::Vector2f& startPosition, const sf::Vector2f& targetPosition)
     : Projectile(window)
 {
-    m_shape.setFillColor(sf::Color::Red);
+    m_shape.setFillColor(sf::Color::Green);
+    m_shape.setPosition(startPosition);
 
-    sf::Vector2f direction = targetPosition - m_shape.getPosition();
+    sf::Vector2f direction = targetPosition - startPosition;
     float magnitude = std::sqrt(direction.x * direction.x + direction.y * direction.y);
     if (magnitude != 0)
-        m_velocity = direction / magnitude * 3.f; 
+        m_velocity = direction / magnitude * 5.f;
     else
         m_velocity = { 0.f, 0.f };
 }

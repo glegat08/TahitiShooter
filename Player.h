@@ -26,6 +26,7 @@ public:
 	void setInvulnerable(float duration) override;
 	void pushPlayer(const sf::Vector2f& enemyPos);
 	void shoot(std::vector<std::unique_ptr<PlayerProjectile>>& projectiles, sf::RenderWindow* window);
+	void updateInvulnerabilityEffect();
 
 	// OTHER METHOD
 	sf::Vector2f getPlayerPosition();
@@ -53,8 +54,11 @@ private:
 
 	// GAMEPLAY
 	sf::Clock m_invulnerableClock;
+	sf::Clock m_blinkClock;
+	float m_invulnerableDuration;
 	bool m_isInvulnerable = false;
 	sf::FloatRect m_hitbox;
+	std::vector<Projectile> m_projectiles;
 
 	int m_health;
 	int m_shield;

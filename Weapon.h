@@ -48,7 +48,7 @@ private:
 class EnemyProjectile : public Projectile
 {
 public:
-    EnemyProjectile(sf::RenderWindow* window, const sf::Vector2f& targetPosition);
+    EnemyProjectile(sf::RenderWindow* window, const sf::Vector2f& startPosition, const sf::Vector2f& targetPosition);
     sf::CircleShape& getShape() override;
     void update() override;
     void movement() override;

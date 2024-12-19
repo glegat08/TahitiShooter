@@ -14,32 +14,42 @@ public:
     Game(sf::RenderWindow* window, const float& framerate);
     ~Game();
 
+    void setMapTexture(sf::RenderWindow* window);
     // PLAYER
     void setPlayer();
-    void removeProjectiles();
 
     // ENEMIES
     void setEnemiesCount(int count);
     void spawnEnemy(sf::RenderWindow* window);
     void removeDeadEnemies();
-
-    // GAME MAP
-    void setMapTexture(sf::RenderWindow* window);
+    void removeProjectiles();
     void setAudio();
+
     void processInput(const sf::Event& event) override;
     void update(const float& deltaTime) override;
     void render() override;
-    void setScore(const float& deltaTime);
+    void displayFPS();
+    void displayScore();
 
 private:
     sf::Music m_gameMusic;
     sf::Texture m_map;
     sf::Sprite m_mapSprite;
 
+    // SCORE
+    sf::Font m_scoreFont;
+    sf::Text m_scoreText;
+    int m_score = 0;
+
+    // FPS COUNTER
+    sf::Font m_fpsFont;
+    sf::Text m_fpsText;
+
     Player* m_player;
     std::vector<Enemy*> m_enemies;
-    std::vector<std::unique_ptr<PlayerProjectile>> m_projectiles; 
+    std::vector<std::unique_ptr<PlayerProjectile>> m_projectiles;
+    std::vector<std::unique_ptr<EnemyProjectile>> m_enemyProjectiles;
+
     int m_enemiesCount;
-    int m_score;
 };
 

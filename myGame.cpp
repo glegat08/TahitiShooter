@@ -7,5 +7,5 @@ myGame::myGame(SceneManager& scene)
 
 void myGame::exec()
 {
-    m_sceneManager->exec();
+	m_sceneManager->exec();
 }

@@ -63,7 +63,7 @@ void SceneManager::processInput()
             }
 
             if (event.key.code == sf::Keyboard::Escape)
-				m_window->close();
+                m_window->close();
         }
 
         m_currentScene->processInput(event);

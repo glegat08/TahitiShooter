@@ -34,7 +34,7 @@ protected:
 
 
 // Subclass SharkEnemy
-class SharkEnemy : public Enemy 
+class SharkEnemy : public Enemy
 {
 public:
     SharkEnemy(sf::RenderWindow* window, Player* player);
@@ -48,9 +48,17 @@ public:
     void setInvulnerable(float duration) override;
     void getWeapon() override;
     void updateAnim() override;
+    void shoot(std::vector<std::unique_ptr<EnemyProjectile>>& enemyProjectiles);
+
+    bool isAlive() override;
+    bool isAttacking() override;
+    bool isInvulnerable() override;
+    void switchWeapon() override;
+    void randomPos(sf::RenderWindow* window);
 
     sf::Sprite& getSprite() override;
     sf::FloatRect getHitbox() const;
+    sf::Vector2f getSharkCenter();
 
 private:
     void moveAlongBorder();
@@ -60,10 +68,19 @@ private:
     int m_frameHeight = 80;
     int m_numFrames = 5;
 
+    float m_directionX;
+    float m_directionY;
+    float m_moveSpeed = 2.f;
 
     sf::Texture m_sharkTexture;
-	sf::Sprite m_sharkSprite;
+    sf::Sprite m_sharkSprite;
+
+    sf::Clock movementSwitchClock;
+    bool switchMove = false;
+    int move = 1;
+    sf::Clock m_shootClock;
 };
+
 
 // Subclass CrabEnemy
 class CrabEnemy : public Enemy 

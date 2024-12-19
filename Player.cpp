@@ -165,8 +165,42 @@ void Player::switchWeapon()
 void Player::setInvulnerable(float duration)
 {
     m_isInvulnerable = true;
+    m_invulnerableDuration = duration;
     m_invulnerableClock.restart();
+    m_blinkClock.restart();
 }
+
+void Player::updateInvulnerabilityEffect()
+{
+    if (m_isInvulnerable)
+    {
+        if (m_invulnerableClock.getElapsedTime().asSeconds() > m_invulnerableDuration)
+        {
+            m_isInvulnerable = false;
+            m_idleSprite.setColor(sf::Color::White);
+            m_playerSprite.setColor(sf::Color::White);
+        }
+        else
+        {
+            if (m_blinkClock.getElapsedTime().asSeconds() > 0.1f)
+            {
+                sf::Color currentColor = m_idleSprite.getColor();
+                if (currentColor.a == 255)
+                {
+                    m_idleSprite.setColor(sf::Color(255, 255, 255, 128));
+                    m_playerSprite.setColor(sf::Color(255, 255, 255, 128));
+                }
+                else
+                {
+                    m_idleSprite.setColor(sf::Color(255, 255, 255, 255));
+                    m_playerSprite.setColor(sf::Color(255, 255, 255, 255));
+                }
+                m_blinkClock.restart();
+            }
+        }
+    }
+}
+
 
 void Player::pushPlayer(const sf::Vector2f& enemyPos)
 {
