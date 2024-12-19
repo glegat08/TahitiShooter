@@ -50,13 +50,13 @@ void StartMenu::setStartText(sf::RenderWindow* window)
 
 void StartMenu::setBackground(sf::RenderWindow* window)
 {
-    m_background.loadFromFile("C:\\Users\\guill\\Downloads\\tahiti.jpg");
+    m_background.loadFromFile("resource\\tahiti.jpg");
     m_backgroundSprite.setTexture(m_background);
 }
 
 void StartMenu::playAudio(sf::RenderWindow* window)
 {
-    m_music.openFromFile("C:\\Users\\guill\\Downloads\\tropical-reggae-united-129836.mp3");
+    m_music.openFromFile("resource\\menu.mp3");
     m_music.play();
     m_music.setVolume(50);
 }

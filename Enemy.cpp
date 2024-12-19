@@ -107,7 +107,7 @@ SharkEnemy::SharkEnemy(sf::RenderWindow* window, Player* player)
 
 void SharkEnemy::setTexture()
 {
-    m_sharkTexture.loadFromFile("C:\\Users\\guill\\Downloads\\shark.png");
+    m_sharkTexture.loadFromFile("resource\\shark.png");
     m_sharkSprite.setTexture(m_sharkTexture);
 }
 
@@ -249,11 +249,11 @@ CrabEnemy::CrabEnemy(sf::RenderWindow* window, Player* player)
 void CrabEnemy::setTexture() 
 {
     // WALK
-    m_crabTexture.loadFromFile("C:\\Users\\guill\\Downloads\\crabWalk.png");
+    m_crabTexture.loadFromFile("resource\\crabWalk.png");
     m_crabSprite.setTexture(m_crabTexture);
 
     // ATTACK
-    m_crabAttack.loadFromFile("C:\\Users\\guill\\Downloads\\crabAttack.png");
+    m_crabAttack.loadFromFile("resource\\crabAttack.png");
 	m_crabAttackSprite.setTexture(m_crabAttack);
 }
 

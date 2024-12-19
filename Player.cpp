@@ -38,19 +38,26 @@ bool Player::isInvulnerable()
 void Player::setTexture()
 {
     // MOVEMENT
-	m_texture.loadFromFile("C:\\Users\\guill\\Downloads\\Unarmed_Run\\Unarmed_Run_full.png");
+	m_texture.loadFromFile("resource\\Unarmed_Run_full.png");
     m_playerSprite.setTexture(m_texture);
     m_playerSprite.setTextureRect(sf::IntRect(0, 0, m_frameWidth, m_frameHeight));
     m_playerSprite.setScale(2.f, 2.f);
 
     // IDLE
-    m_idleTexture.loadFromFile("C:\\Users\\guill\\Downloads\\Unarmed_Idle\\Unarmed_Idle_full.png");
+    m_idleTexture.loadFromFile("resource\\Unarmed_Idle_full.png");
     m_idleSprite.setTexture(m_idleTexture);
     m_idleSprite.setTextureRect(sf::IntRect(0, 0, m_frameWidth, m_frameHeight));
     m_idleSprite.setScale(2.f, 2.f);
 
+    // ATTACK
+    m_attackTexture.loadFromFile("resource\\Sword_Run_Attack_full.png");
+	m_attackSprite.setTexture(m_attackTexture);
+	m_attackSprite.setTextureRect(sf::IntRect(0, 0, m_frameWidth, m_frameHeight));
+	m_attackSprite.setScale(2.f, 2.f);
+
     // IDLE POS = MOVEMENT POS
     m_idleSprite.setPosition(getPlayerPosition());
+    m_attackSprite.setPosition(getPlayerPosition());
 }
 
 void Player::updateAnim()
@@ -77,25 +84,28 @@ void Player::updateAnim()
 
 void Player::movement()
 {
+    float deltaTime = m_movementClock.restart().asSeconds();
     sf::Vector2f currentPos = getPlayerPosition();
     m_isIdle = true;
 
+    float frameSpeed = m_speed * deltaTime;
+
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
     {
-        float leftX = currentPos.x - m_speed;
+        float leftX = currentPos.x - frameSpeed;
         if (leftX >= 50.f) // SIZE OF MAP.X (LEFT)
         {
-            m_playerSprite.move(-m_speed, 0.f);
+            m_playerSprite.move(-frameSpeed, 0.f);
             m_currentDirection = LEFT;
             m_isIdle = false;
         }
     }
     else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
     {
-        float rightX = currentPos.x + m_speed;
+        float rightX = currentPos.x + frameSpeed;
         if (rightX <= 1645.f) // SIZE OF MAP.X (RIGHT)
         {
-            m_playerSprite.move(m_speed, 0.f);
+            m_playerSprite.move(frameSpeed, 0.f);
             m_currentDirection = RIGHT;
             m_isIdle = false;
         }
@@ -103,20 +113,20 @@ void Player::movement()
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z))
     {
-        float upY = currentPos.y - m_speed;
+        float upY = currentPos.y - frameSpeed;
         if (upY >= 80.f) // SIZE OF MAP.Y (UP)
         {
-            m_playerSprite.move(0.f, -m_speed);
+            m_playerSprite.move(0.f, -frameSpeed);
             m_currentDirection = TOP;
             m_isIdle = false;
         }
     }
     else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
     {
-        float downY = currentPos.y + m_speed;
+        float downY = currentPos.y + frameSpeed;
         if (downY <= 830.f) // SIZE OF MAP.Y (DOWN)
         {
-            m_playerSprite.move(0.f, m_speed);
+            m_playerSprite.move(0.f, frameSpeed);
             m_currentDirection = BOTTOM;
             m_isIdle = false;
         }
@@ -137,6 +147,11 @@ int Player::getHp()
 
 void Player::takeDamage(int damage)
 {
+    m_health -= damage;
+    if (m_health <= 0)
+    {
+        m_health = 0;
+    }
 }
 
 void Player::getWeapon()
@@ -150,7 +165,40 @@ void Player::switchWeapon()
 void Player::setInvulnerable(float duration)
 {
     m_isInvulnerable = true;
+    m_invulnerableDuration = duration;
     m_invulnerableClock.restart();
+    m_blinkClock.restart();
+}
+
+void Player::updateInvulnerabilityEffect()
+{
+    if (m_isInvulnerable)
+    {
+        if (m_invulnerableClock.getElapsedTime().asSeconds() > m_invulnerableDuration)
+        {
+            m_isInvulnerable = false;
+            m_idleSprite.setColor(sf::Color::White);
+            m_playerSprite.setColor(sf::Color::White);
+        }
+        else
+        {
+            if (m_blinkClock.getElapsedTime().asSeconds() > 0.1f)
+            {
+                sf::Color currentColor = m_idleSprite.getColor();
+                if (currentColor.a == 255)
+                {
+                    m_idleSprite.setColor(sf::Color(255, 255, 255, 128));
+                    m_playerSprite.setColor(sf::Color(255, 255, 255, 128));
+                }
+                else
+                {
+                    m_idleSprite.setColor(sf::Color(255, 255, 255, 255));
+                    m_playerSprite.setColor(sf::Color(255, 255, 255, 255));
+                }
+                m_blinkClock.restart();
+            }
+        }
+    }
 }
 
 sf::Vector2f Player::getPlayerPosition()
@@ -160,7 +208,7 @@ sf::Vector2f Player::getPlayerPosition()
 
 const sf::Sprite& Player::getPlayerSprite() const
 {
-    return m_playerSprite;
+    return m_idleSprite;
 }
 
 sf::FloatRect Player::getHitbox() const

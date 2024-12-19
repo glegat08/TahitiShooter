@@ -5,9 +5,13 @@
 Game::Game(sf::RenderWindow* window, const float& framerate)
 	: SceneBase(window, framerate)
 {
+
+    m_fpsFont.loadFromFile("C:\\Windows\\Fonts\\arial.ttf");
+    m_scoreFont.loadFromFile("C:\\Windows\\Fonts\\arial.ttf");
+
     setMapTexture(window);
     setPlayer();
-    setEnemiesCount(50);
+    setEnemiesCount(1);
 }
 
 Game::~Game()
@@ -21,7 +25,7 @@ Game::~Game()
 
 void Game::setMapTexture(sf::RenderWindow* window)
 {
-    m_map.loadFromFile("C:\\Users\\guill\\Downloads\\beach.png");
+    m_map.loadFromFile("resource\\beach.png");
     m_mapSprite.setTexture(m_map);
 }
 
@@ -52,15 +56,23 @@ void Game::spawnEnemy(sf::RenderWindow* window)
 
 void Game::removeDeadEnemies()
 {
-    m_enemies.erase(std::remove_if(m_enemies.begin(), m_enemies.end(), [](Enemy* enemy) 
+    auto it = std::remove_if(m_enemies.begin(), m_enemies.end(), [this](Enemy* enemy)
         {
-        return !enemy->isAlive();
-        }), m_enemies.end());
+            if (!enemy->isAlive())
+            {
+                m_score += 10;
+                delete enemy;
+                return true;
+            }
+            return false;
+        });
+
+    m_enemies.erase(it, m_enemies.end());
 }
 
 void Game::setAudio()
 {
-    m_gameMusic.openFromFile("C:\\Users\\guill\\Downloads\\AirFight.mp3");
+    m_gameMusic.openFromFile("resource\\game.mp3");
     m_gameMusic.setVolume(10);
     m_gameMusic.play();
 }
@@ -72,7 +84,6 @@ void Game::processInput(const sf::Event& event)
 void Game::render()
 {
     m_renderWindow->draw(m_mapSprite);
-    displayFPS();
 
     if (m_player->m_isIdle)
         m_renderWindow->draw(m_player->m_idleSprite);
@@ -83,6 +94,9 @@ void Game::render()
     {
         m_renderWindow->draw(enemy->getSprite());
     }
+
+    displayFPS();
+    displayScore();
 }
 
 void Game::displayFPS()
@@ -90,8 +104,7 @@ void Game::displayFPS()
     static sf::Clock fpsClock;
     static int frameCount = 0;
     static float elapsedTime = 0.f;
-    m_font.loadFromFile("C:\\Windows\\Fonts\\arial.ttf");
-	m_fpsText.setFont(m_font);
+	m_fpsText.setFont(m_fpsFont);
 	m_fpsText.setPosition(10, 10);
 	m_fpsText.setCharacterSize(18);
 	m_fpsText.setFillColor(sf::Color::Black);
@@ -110,10 +123,26 @@ void Game::displayFPS()
     m_renderWindow->draw(m_fpsText);
 }
 
+void Game::displayScore()
+{
+    sf::RectangleShape rec(sf::Vector2f(250.f, 50.f));
+	rec.setPosition((m_renderWindow->getSize().x / 2) - 120, 0);
+    rec.setFillColor(sf::Color(0, 0, 0, 128));
+    m_scoreText.setFont(m_scoreFont);
+    m_scoreText.setCharacterSize(24);
+    m_scoreText.setFillColor(sf::Color::White);
+    m_scoreText.setPosition((m_renderWindow->getSize().x / 2) - 80, 0);
+    m_scoreText.setString("S C O R E : " + std::to_string(m_score));
+
+    m_renderWindow->draw(rec);
+    m_renderWindow->draw(m_scoreText);
+}
+
 void Game::update(const float& deltaTime)
 {
     m_player->movement();
     m_player->updateAnim();
+    m_player->updateInvulnerabilityEffect();
 
     for (Enemy* enemy : m_enemies)
     {
@@ -122,6 +151,7 @@ void Game::update(const float& deltaTime)
 
         if (m_player->getHitbox().intersects(enemy->getHitbox()) && !m_player->isInvulnerable())
         {
+            m_player->takeDamage(10);
             m_player->setInvulnerable(2.f);
         }
     }

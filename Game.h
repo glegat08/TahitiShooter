@@ -26,14 +26,20 @@ public:
     void update(const float& deltaTime) override;
     void render() override;
     void displayFPS();
+    void displayScore();
 
 private:
     sf::Music m_gameMusic;
     sf::Texture m_map;
     sf::Sprite m_mapSprite;
 
+    // SCORE
+    sf::Font m_scoreFont;
+	sf::Text m_scoreText;
+	int m_score = 0;
+
     // FPS COUNTER
-    sf::Font m_font;
+    sf::Font m_fpsFont;
 	sf::Text m_fpsText;
 
     // PARAMETERS FOR FUNCTIONS
