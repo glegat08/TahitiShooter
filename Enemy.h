@@ -48,6 +48,7 @@ public:
     void getWeapon() override;
     void switchWeapon() override;
     void updateAnim() override;
+    void resetAnimation();
 
     sf::Sprite& getSprite() override;
     sf::FloatRect getHitbox() const;
@@ -88,6 +89,7 @@ public:
     void getWeapon() override;
     void switchWeapon() override;
     void updateAnim() override;
+    void resetAnimation();
 
     sf::Sprite& getSprite() override;
     sf::FloatRect getHitbox() const;

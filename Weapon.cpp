@@ -1,16 +1,35 @@
 #include "Weapon.h"
 #include <cmath>
+#define M_PI 3.141592653589793
 
-Projectile::Projectile(const sf::Vector2f& startPos, const sf::Vector2f& targetPos, bool isSpecial)
+Projectile::Projectile(sf::RenderWindow* window)
+    : m_renderWindow(window)
 {
-    setTexture();
-    m_spearSprite.setPosition(startPos);
+    m_shape.setRadius(5.f);
+    m_shape.setFillColor(sf::Color::White);
+}
 
-    sf::Vector2f direction = targetPos - startPos;
+PlayerProjectile::PlayerProjectile(sf::RenderWindow* window, const sf::Vector2f& startPosition, const sf::Vector2f& targetPosition)
+    : Projectile(window)
+{
+    m_spearTexture.loadFromFile("resource\\spear.png");
+    m_spearSprite.setTexture(m_spearTexture);
+
+    sf::Vector2u textureSize = m_spearTexture.getSize();
+    m_spearSprite.setOrigin(textureSize.x / 2.f, textureSize.y / 2.f);
+    m_spearSprite.setPosition(startPosition);
+
+    sf::Vector2f direction = targetPosition - startPosition;
     float magnitude = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+
     if (magnitude != 0)
     {
-        m_velocity = direction / magnitude * m_speed;
+        m_velocity = direction / magnitude * 5.f;
+
+        float angle = atan2(direction.y, direction.x) * 180 / M_PI;
+        angle += 45;
+
+        m_spearSprite.setRotation(angle);
     }
     else
     {
@@ -18,30 +37,64 @@ Projectile::Projectile(const sf::Vector2f& startPos, const sf::Vector2f& targetP
     }
 }
 
-void Projectile::update(float deltaTime)
+sf::Sprite& PlayerProjectile::getShape()
 {
-    m_spearSprite.move(m_velocity * deltaTime);
+    return m_spearSprite;
 }
 
-void Projectile::setTexture()
+void PlayerProjectile::update()
 {
-    m_spearTexture.loadFromFile("C:\\Users\\guill\\Downloads\\spear.png");
-    m_spearSprite.setTexture(m_spearTexture);
+    movement();
+    m_renderWindow->draw(m_spearSprite);
 }
 
-void Projectile::render(sf::RenderWindow& window) const
+void PlayerProjectile::movement()
 {
-    window.draw(m_spearSprite);
+    m_spearSprite.move(m_velocity);
 }
 
-sf::FloatRect Projectile::getBounds() const
+// Enemy Projectile
+EnemyProjectile::EnemyProjectile(sf::RenderWindow* window, const sf::Vector2f& targetPosition)
+    : Projectile(window)
 {
-    return m_spearSprite.getGlobalBounds();
+    m_shape.setFillColor(sf::Color::Red);
+
+    sf::Vector2f direction = targetPosition - m_shape.getPosition();
+    float magnitude = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+    if (magnitude != 0)
+        m_velocity = direction / magnitude * 3.f;
+    else
+        m_velocity = { 0.f, 0.f };
 }
 
-bool Projectile::hasHitEnemy() const
+void EnemyProjectile::update()
 {
-    return false;
+    movement();
+    m_renderWindow->draw(m_shape);
+}
+
+void EnemyProjectile::movement()
+{
+    m_shape.move(m_velocity);
+}
+
+// Boss Projectile
+BossProjectile::BossProjectile(sf::RenderWindow* window)
+    : Projectile(window)
+{
+    m_shape.setFillColor(sf::Color::Yellow);
+    m_shape.setRadius(10.f);
+}
+
+void BossProjectile::update()
+{
+    movement();
+    m_renderWindow->draw(m_shape);
+}
+
+void BossProjectile::movement()
+{
+    m_shape.move(-2.f, 4.f);
 }
 
 bool Projectile::isAlive()
@@ -64,20 +117,20 @@ bool Projectile::isInvulnerable()
     return false;
 }
 
+void Projectile::setTexture()
+{
+}
+
 void Projectile::updateAnim()
 {
 }
 
-void Projectile::movement()
-{
-}
-
-int Projectile::getShield()
+int Projectile::getHp()
 {
     return 0;
 }
 
-int Projectile::getHp()
+int Projectile::getShield()
 {
     return 0;
 }
@@ -86,14 +139,14 @@ void Projectile::takeDamage(int damage)
 {
 }
 
+void Projectile::setInvulnerable(float duration)
+{
+}
+
 void Projectile::getWeapon()
 {
 }
 
 void Projectile::switchWeapon()
-{
-}
-
-void Projectile::setInvulnerable(float duration)
 {
 }

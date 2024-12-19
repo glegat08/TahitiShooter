@@ -22,7 +22,8 @@ bool Player::isAlive()
 
 bool Player::isShooting()
 {
-    return false;
+    bool shooting = sf::Mouse::isButtonPressed(sf::Mouse::Left);
+    return shooting;
 }
 
 bool Player::isAttacking()
@@ -201,9 +202,28 @@ void Player::updateInvulnerabilityEffect()
     }
 }
 
+void Player::shoot(std::vector<std::unique_ptr<PlayerProjectile>>& projectiles, sf::RenderWindow* window)
+{
+    static sf::Clock shootClock;
+    if (isShooting() && shootClock.getElapsedTime().asSeconds() > 0.5f)
+    {
+        sf::Vector2f mousePosition = window->mapPixelToCoords(sf::Mouse::getPosition(*window));
+        sf::Vector2f playerPosition = getPlayerCenter();
+
+        projectiles.push_back(std::make_unique<PlayerProjectile>(window, playerPosition, mousePosition));
+        shootClock.restart();
+    }
+}
+
 sf::Vector2f Player::getPlayerPosition()
 {
 	return m_playerSprite.getPosition();
+}
+
+sf::Vector2f Player::getPlayerCenter()
+{
+    sf::FloatRect bounds = m_playerSprite.getGlobalBounds();
+    return { bounds.left + bounds.width / 2.f, bounds.top + bounds.height / 2.f };
 }
 
 const sf::Sprite& Player::getPlayerSprite() const

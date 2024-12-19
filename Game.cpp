@@ -5,7 +5,7 @@
 Game::Game(sf::RenderWindow* window, const float& framerate)
 	: SceneBase(window, framerate)
 {
-
+    m_enemies.reserve(200);
     m_fpsFont.loadFromFile("C:\\Windows\\Fonts\\arial.ttf");
     m_scoreFont.loadFromFile("C:\\Windows\\Fonts\\arial.ttf");
 
@@ -33,6 +33,16 @@ void Game::setPlayer()
 {
     m_player = new Player();
     m_player->m_playerSprite.setPosition(m_renderWindow->getSize().x / 2.f, m_renderWindow->getSize().y / 2.f);
+}
+
+void Game::removeProjectiles()
+{
+    m_projectiles.erase(std::remove_if(m_projectiles.begin(), m_projectiles.end(), [this](const std::unique_ptr<PlayerProjectile>& p)
+        {
+            sf::FloatRect bounds = p->getShape().getGlobalBounds();
+            return bounds.left + bounds.width < 0 || bounds.top + bounds.height < 0 ||
+                bounds.left > m_renderWindow->getSize().x || bounds.top > m_renderWindow->getSize().y;
+        }), m_projectiles.end());
 }
 
 void Game::setEnemiesCount(int count)
@@ -95,6 +105,11 @@ void Game::render()
         m_renderWindow->draw(enemy->getSprite());
     }
 
+    for (const auto& projectile : m_projectiles)
+    {
+        m_renderWindow->draw(projectile->getShape());
+    }
+
     displayFPS();
     displayScore();
 }
@@ -143,6 +158,31 @@ void Game::update(const float& deltaTime)
     m_player->movement();
     m_player->updateAnim();
     m_player->updateInvulnerabilityEffect();
+    m_player->shoot(m_projectiles, m_renderWindow);
+
+    auto projectileIt = m_projectiles.begin();
+    while (projectileIt != m_projectiles.end())
+    {
+        (*projectileIt)->update();
+        bool projectileHit = false;
+
+        for (Enemy* enemy : m_enemies)
+        {
+            if ((*projectileIt)->getShape().getGlobalBounds().intersects(enemy->getHitbox()))
+            {
+                enemy->takeDamage(25);
+                projectileHit = true;
+                break;
+            }
+        }
+
+        if (projectileHit)
+            projectileIt = m_projectiles.erase(projectileIt);
+        else
+            ++projectileIt;
+    }
+
+    removeProjectiles();
 
     for (Enemy* enemy : m_enemies)
     {

@@ -61,39 +61,42 @@ void Enemy::randomPos(sf::RenderWindow* window)
         switch (corner)
         {
         case TOP_LEFT:
-            x = margin;  // POS X UPPER LEFT BORDER
-            y = margin; // POS Y UPPER LEFT BORDER
+            x = margin;
+            y = margin;
             break;
         case TOP_RIGHT:
-            x = windowSize.x - margin - shark->getSprite().getGlobalBounds().width;  // POS X UPPER RIGHT BORDER
-            y = margin;                                                              // POS Y UPPER RIGHT BORDER
+            x = windowSize.x - margin - shark->getSprite().getGlobalBounds().width;
+            y = margin;
             break;
         case BOTTOM_LEFT:
-            x = margin;                                                               // POS X BOTTOM LEFT BORDER
-            y = windowSize.y - margin - shark->getSprite().getGlobalBounds().height;  // POS Y BOTTOM LEFT BORDER
+            x = margin;
+            y = windowSize.y - margin - shark->getSprite().getGlobalBounds().height;
             break;
         case BOTTOM_RIGHT:
-            x = windowSize.x - margin - shark->getSprite().getGlobalBounds().width;  // POS X BOTTOM RIGHT BORDER
-            y = windowSize.y - margin - shark->getSprite().getGlobalBounds().height;  // POS Y BOTTOM RIGHT BORDER
+            x = windowSize.x - margin - shark->getSprite().getGlobalBounds().width;
+            y = windowSize.y - margin - shark->getSprite().getGlobalBounds().height;
             break;
         }
 
         shark->getSprite().setPosition(x, y);
+        shark->resetAnimation();
     }
     else if (auto* crab = dynamic_cast<CrabEnemy*>(this))
     {
-        x = static_cast<float>(rand() % windowSize.x) - 20.f; // ANYWHERE.X ON THE MAP
-		y = static_cast<float>(rand() % windowSize.y) - 20.f; // ANYWHERE.Y ON THE MAP
+        x = static_cast<float>(rand() % windowSize.x) - 20.f;
+        y = static_cast<float>(rand() % windowSize.y) - 20.f;
 
         crab->getSprite().setPosition(x, y);
+        crab->resetAnimation();
     }
 }
-
 
 // SharkEnemy Class
 SharkEnemy::SharkEnemy(sf::RenderWindow* window, Player* player)
     : Enemy(window, player)
 {
+    m_health = 50;
+
     do 
     {
         m_directionX = (rand() % 3) - 1;
@@ -176,7 +179,7 @@ bool SharkEnemy::isShooting()
 
 int SharkEnemy::getHp()
 {
-    return 0;
+    return m_health;
 }
 
 int SharkEnemy::getShield()
@@ -186,6 +189,11 @@ int SharkEnemy::getShield()
 
 void SharkEnemy::takeDamage(int damage)
 {
+    m_health -= damage;
+    if (m_health <= 0)
+    {
+        m_health = 0;
+    }
 }
 
 void SharkEnemy::setInvulnerable(float duration)
@@ -211,6 +219,12 @@ void SharkEnemy::updateAnim()
 
         m_animationClock.restart();
     }
+}
+
+void SharkEnemy::resetAnimation()
+{
+    m_currentFrame = 0;
+    m_sharkSprite.setTextureRect(sf::IntRect(0, 0, m_frameWidth, m_frameHeight));
 }
 
 sf::Sprite& SharkEnemy::getSprite()
@@ -242,6 +256,8 @@ sf::FloatRect SharkEnemy::getHitbox() const
 CrabEnemy::CrabEnemy(sf::RenderWindow* window, Player* player)
     : Enemy(window, player) 
 {
+    m_health = 25;
+
     setTexture();
     randomPos(window);
 }
@@ -269,7 +285,7 @@ bool CrabEnemy::isAttacking()
 
 int CrabEnemy::getHp()
 {
-    return 0;
+    return m_health;
 }
 
 int CrabEnemy::getShield()
@@ -279,6 +295,11 @@ int CrabEnemy::getShield()
 
 void CrabEnemy::takeDamage(int damage)
 {
+    m_health -= damage;
+    if (m_health <= 0)
+    {
+        m_health = 0;
+    }
 }
 
 void CrabEnemy::setInvulnerable(float duration)
@@ -304,6 +325,12 @@ void CrabEnemy::updateAnim()
 
         m_animationClock.restart();
     }
+}
+
+void CrabEnemy::resetAnimation()
+{
+    m_currentFrame = 0;
+    m_crabSprite.setTextureRect(sf::IntRect(0, 0, m_frameWidth, m_frameHeight));
 }
 
 sf::Sprite& CrabEnemy::getSprite()

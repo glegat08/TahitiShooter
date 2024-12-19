@@ -1,6 +1,10 @@
 #pragma once
 
 #include "SceneBase.h"
+#include "Weapon.h"
+#include <vector>
+#include <memory>
+
 class Player;
 class Enemy;
 
@@ -13,6 +17,7 @@ public:
 
     // PLAYER
     void setPlayer();
+    void removeProjectiles();
 
     // ENEMIES
     void setEnemiesCount(int count);
@@ -45,5 +50,7 @@ private:
     // PARAMETERS FOR FUNCTIONS
     Player* m_player;
     std::vector<Enemy*> m_enemies;
+    std::vector<std::unique_ptr<PlayerProjectile>> m_projectiles;
+    //std::vector<std::unique_ptr<EnemyProjectile>>& m_enemyProjectiles;
     int m_enemiesCount;
 };
