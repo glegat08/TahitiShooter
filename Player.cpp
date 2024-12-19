@@ -1,4 +1,7 @@
 #include "Player.h"
+#include "iostream"
+#include <vector>
+#include <memory>
 
 enum Direction
 {
@@ -10,7 +13,7 @@ enum Direction
 
 Player::Player()
 {
-	setTexture();
+    setTexture();
 }
 
 bool Player::isAlive()
@@ -20,8 +23,10 @@ bool Player::isAlive()
 
 bool Player::isShooting()
 {
-    return false;
+    bool shooting = sf::Mouse::isButtonPressed(sf::Mouse::Left);
+    return shooting;
 }
+
 
 bool Player::isAttacking()
 {
@@ -36,13 +41,13 @@ bool Player::isInvulnerable()
 void Player::setTexture()
 {
     // MOVEMENT
-	m_texture.loadFromFile("C:\\Users\\guill\\Downloads\\Unarmed_Run\\Unarmed_Run_full.png");
+    m_texture.loadFromFile("C:\\Users\\noemo\\Pictures\\Projet\\Run.png");
     m_playerSprite.setTexture(m_texture);
     m_playerSprite.setTextureRect(sf::IntRect(0, 0, m_frameWidth, m_frameHeight));
     m_playerSprite.setScale(2.f, 2.f);
 
     // IDLE
-    m_idleTexture.loadFromFile("C:\\Users\\guill\\Downloads\\Unarmed_Idle\\Unarmed_Idle_full.png");
+    m_idleTexture.loadFromFile("C:\\Users\\noemo\\Pictures\\Projet\\OnPlace.png");
     m_idleSprite.setTexture(m_idleTexture);
     m_idleSprite.setTextureRect(sf::IntRect(0, 0, m_frameWidth, m_frameHeight));
     m_idleSprite.setScale(2.f, 2.f);
@@ -123,6 +128,18 @@ void Player::movement()
     m_idleSprite.setPosition(getPlayerPosition());
 }
 
+void Player::shoot(std::vector<std::unique_ptr<PlayerProjectile>>& projectiles, sf::RenderWindow* window)
+{
+    static sf::Clock shootClock;
+    if (isShooting() && shootClock.getElapsedTime().asSeconds() > 0.5f)
+    {
+        sf::Vector2f mousePosition = window->mapPixelToCoords(sf::Mouse::getPosition(*window));
+        sf::Vector2f playerPosition = getPlayerCenter();
+        projectiles.emplace_back(std::make_unique<PlayerProjectile>(window, playerPosition, mousePosition));
+        shootClock.restart();
+    }
+}
+
 int Player::getShield()
 {
     return 0;
@@ -159,14 +176,20 @@ void Player::pushPlayer(const sf::Vector2f& enemyPos)
     m_playerSprite.move(-direction.x * -50.f, -direction.y * -50.f);
 }
 
-sf::Vector2f Player::getPlayerPosition()
-{
-	return m_playerSprite.getPosition();
-}
-
 const sf::Sprite& Player::getPlayerSprite() const
 {
     return m_playerSprite;
+}
+
+sf::Vector2f Player::getPlayerPosition()
+{
+    return m_playerSprite.getPosition();
+}
+
+sf::Vector2f Player::getPlayerCenter()
+{
+    sf::FloatRect bounds = m_playerSprite.getGlobalBounds();
+    return { bounds.left + bounds.width / 2.f, bounds.top + bounds.height / 2.f };
 }
 
 sf::FloatRect Player::getHitbox() const

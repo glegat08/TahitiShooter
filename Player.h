@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GameObject.h"
+#include "Weapon.h"
 
 class Player : public GameObject
 {
@@ -24,9 +25,11 @@ public:
 	void switchWeapon() override;
 	void setInvulnerable(float duration) override;
 	void pushPlayer(const sf::Vector2f& enemyPos);
+	void shoot(std::vector<std::unique_ptr<PlayerProjectile>>& projectiles, sf::RenderWindow* window);
 
 	// OTHER METHOD
 	sf::Vector2f getPlayerPosition();
+	sf::Vector2f getPlayerCenter();
 	const sf::Sprite& getPlayerSprite() const;
 	sf::FloatRect getHitbox() const;
 

@@ -2,6 +2,7 @@
 
 #include "GameObject.h"
 #include "Player.h"
+#include "Weapon.h"
 
 class Enemy : public GameObject 
 {
@@ -46,7 +47,6 @@ public:
     void takeDamage(int damage) override;
     void setInvulnerable(float duration) override;
     void getWeapon() override;
-    void switchWeapon() override;
     void updateAnim() override;
 
     sf::Sprite& getSprite() override;
@@ -95,4 +95,60 @@ private:
     int m_numFrames = 4;
 
     void moveTowardsPlayer(const sf::Vector2f& playerPos, float speed);
+};
+
+
+class SharkBoss : public Enemy
+{
+public :
+    SharkBoss(sf::RenderWindow* window, Player* player);
+
+    void setTexture() override;
+    void movement() override;
+    bool isAttacking() override;
+    int getHp() override;
+    int getShield() override;
+    void takeDamage(int damage) override;
+    void setInvulnerable(float duration) override;
+    void getWeapon() override;
+    void switchWeapon() override;
+    void updateAnim() override;
+
+    sf::Sprite& getSprite() override;
+    sf::FloatRect getHitbox() const;
+
+private :
+
+    sf::Texture m_sBossTexture;
+    sf::Sprite m_sBossSprite;
+
+    void moveNextToWindow(const sf::Vector2u& windowSize, float speed);
+};
+
+
+class CrabBoss : public Enemy
+{
+public:
+    CrabBoss(sf::RenderWindow* window, Player* player);
+
+    void setTexture() override;
+    void movement() override;
+    bool isAttacking() override;
+    int getHp() override;
+    int getShield() override;
+    void takeDamage(int damage) override;
+    void setInvulnerable(float duration) override;
+    void getWeapon() override;
+    void switchWeapon() override;
+    void updateAnim() override;
+
+    sf::Sprite& getSprite() override;
+    sf::FloatRect getHitbox() const;
+
+private:
+
+    sf::Texture m_cBossTexture;
+    sf::Sprite m_cBossSprite;
+
+    void moveLikeACrab(const sf::Vector2u& windowSize);
 };

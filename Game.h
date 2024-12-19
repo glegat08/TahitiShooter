@@ -1,6 +1,10 @@
 #pragma once
 
 #include "SceneBase.h"
+#include "Weapon.h"
+#include <vector>
+#include <memory>
+
 class Player;
 class Enemy;
 
@@ -10,9 +14,9 @@ public:
     Game(sf::RenderWindow* window, const float& framerate);
     ~Game();
 
-
     // PLAYER
     void setPlayer();
+    void removeProjectiles();
 
     // ENEMIES
     void setEnemiesCount(int count);
@@ -25,6 +29,7 @@ public:
     void processInput(const sf::Event& event) override;
     void update(const float& deltaTime) override;
     void render() override;
+    void setScore(const float& deltaTime);
 
 private:
     sf::Music m_gameMusic;
@@ -33,5 +38,8 @@ private:
 
     Player* m_player;
     std::vector<Enemy*> m_enemies;
+    std::vector<std::unique_ptr<PlayerProjectile>> m_projectiles; 
     int m_enemiesCount;
+    int m_score;
 };
+
