@@ -1,4 +1,6 @@
 #include "Player.h"
+#include "Weapon.h"
+#include "Enemy.h"
 
 enum Direction
 {
@@ -80,20 +82,20 @@ void Player::movement()
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
     {
-        float leftX = currentPos.x - 4.f;
+        float leftX = currentPos.x - m_speed;
         if (leftX >= 50.f) // SIZE OF MAP.X (LEFT)
         {
-            m_playerSprite.move(-4.f, 0.f);
+            m_playerSprite.move(-m_speed, 0.f);
             m_currentDirection = LEFT;
             m_isIdle = false;
         }
     }
     else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
     {
-        float rightX = currentPos.x + 4.f;
+        float rightX = currentPos.x + m_speed;
         if (rightX <= 1645.f) // SIZE OF MAP.X (RIGHT)
         {
-            m_playerSprite.move(4.f, 0.f);
+            m_playerSprite.move(m_speed, 0.f);
             m_currentDirection = RIGHT;
             m_isIdle = false;
         }
@@ -101,20 +103,20 @@ void Player::movement()
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z))
     {
-        float upY = currentPos.y - 4.f;
+        float upY = currentPos.y - m_speed;
         if (upY >= 80.f) // SIZE OF MAP.Y (UP)
         {
-            m_playerSprite.move(0.f, -4.f);
+            m_playerSprite.move(0.f, -m_speed);
             m_currentDirection = TOP;
             m_isIdle = false;
         }
     }
     else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
     {
-        float downY = currentPos.y + 4.f;
+        float downY = currentPos.y + m_speed;
         if (downY <= 830.f) // SIZE OF MAP.Y (DOWN)
         {
-            m_playerSprite.move(0.f, 4.f);
+            m_playerSprite.move(0.f, m_speed);
             m_currentDirection = BOTTOM;
             m_isIdle = false;
         }
@@ -149,14 +151,6 @@ void Player::setInvulnerable(float duration)
 {
     m_isInvulnerable = true;
     m_invulnerableClock.restart();
-}
-
-void Player::pushPlayer(const sf::Vector2f& enemyPos)
-{
-    sf::Vector2f direction = m_playerSprite.getPosition() - enemyPos;
-    direction = direction / std::sqrt(direction.x * direction.x + direction.y * direction.y);
-
-    m_playerSprite.move(-direction.x * -50.f, -direction.y * -50.f);
 }
 
 sf::Vector2f Player::getPlayerPosition()

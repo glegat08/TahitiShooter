@@ -1,6 +1,10 @@
 #pragma once
 
 #include "GameObject.h"
+#include "Weapon.h"
+
+class Enemy;
+class Projectile;
 
 class Player : public GameObject
 {
@@ -23,7 +27,6 @@ public:
 	void getWeapon() override;
 	void switchWeapon() override;
 	void setInvulnerable(float duration) override;
-	void pushPlayer(const sf::Vector2f& enemyPos);
 
 	// OTHER METHOD
 	sf::Vector2f getPlayerPosition();
@@ -47,11 +50,13 @@ private:
 	const int m_numDirections = 4;
 	int m_currentFrame = 0;
 	int m_currentDirection = 0;
+	float m_speed = 3.f;
 
 	// GAMEPLAY
 	sf::Clock m_invulnerableClock;
 	bool m_isInvulnerable = false;
 	sf::FloatRect m_hitbox;
+	std::vector<Projectile> m_projectiles;
 
 	int m_health;
 	int m_shield;

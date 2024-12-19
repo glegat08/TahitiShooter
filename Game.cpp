@@ -7,7 +7,7 @@ Game::Game(sf::RenderWindow* window, const float& framerate)
 {
     setMapTexture(window);
     setPlayer();
-    setEnemiesCount(3);
+    setEnemiesCount(50);
 }
 
 Game::~Game()
@@ -96,8 +96,7 @@ void Game::update(const float& deltaTime)
 
         if (m_player->getHitbox().intersects(enemy->getHitbox()) && !m_player->isInvulnerable())
         {
-            m_player->pushPlayer(enemy->getSprite().getPosition());
-            m_player->setInvulnerable(0.5f);
+            m_player->setInvulnerable(2.f);
         }
     }
 

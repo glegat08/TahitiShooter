@@ -60,9 +60,16 @@ private:
     int m_frameHeight = 80;
     int m_numFrames = 5;
 
+    float m_directionX;
+    float m_directionY;
+    float m_moveSpeed = 2.f;
 
     sf::Texture m_sharkTexture;
 	sf::Sprite m_sharkSprite;
+
+    sf::Clock movementSwitchClock;
+    bool switchMove = false;
+    int move = 1;
 };
 
 // Subclass CrabEnemy
@@ -87,6 +94,8 @@ public:
 
 private:
 	sf::Texture m_crabTexture;
+    sf::Texture m_crabAttack;
+    sf::Sprite m_crabAttackSprite;
 	sf::Sprite m_crabSprite;
     sf::Clock m_animationClock;
     int m_currentFrame = 0;
