@@ -33,6 +33,6 @@ private:
     sf::Texture m_spearTexture;
 	sf::Sprite m_spearSprite;
     sf::Vector2f m_velocity;
-    float m_speed = 500.f; // Vitesse en pixels par seconde
+	float m_speed = 500.f;
     bool hitEnemy = false;
 };

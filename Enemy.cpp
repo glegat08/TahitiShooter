@@ -220,7 +220,21 @@ sf::Sprite& SharkEnemy::getSprite()
 
 sf::FloatRect SharkEnemy::getHitbox() const
 {
-    return m_sharkSprite.getGlobalBounds();
+    sf::FloatRect spriteBounds = m_sharkSprite.getGlobalBounds();
+
+    // FREE TO MODIFY THE HITBOX
+    float offsetX = spriteBounds.width * 0.4f;
+    float offsetY = spriteBounds.height * 0.35f;
+    float reducedWidth = spriteBounds.width - 2 * offsetX;
+    float reducedHeight = spriteBounds.height - 2 * offsetY;
+
+    return sf::FloatRect
+    (
+        spriteBounds.left + offsetX,
+        spriteBounds.top + offsetY,
+        reducedWidth,
+        reducedHeight
+    );
 }
 
 
@@ -299,7 +313,21 @@ sf::Sprite& CrabEnemy::getSprite()
 
 sf::FloatRect CrabEnemy::getHitbox() const
 {
-    return m_crabSprite.getGlobalBounds();
+    sf::FloatRect spriteBounds = m_crabSprite.getGlobalBounds();
+
+    // FREE TO MODIFY THE HITBOX
+    float offsetX = spriteBounds.width * 0.4f;
+    float offsetY = spriteBounds.height * 0.35f;
+    float reducedWidth = spriteBounds.width - 2 * offsetX;
+    float reducedHeight = spriteBounds.height - 2 * offsetY;
+
+    return sf::FloatRect
+    (
+        spriteBounds.left + offsetX,
+        spriteBounds.top + offsetY,
+        reducedWidth,
+        reducedHeight
+    );
 }
 
 void CrabEnemy::moveTowardsPlayer(const sf::Vector2f& playerPos, float speed)

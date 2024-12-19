@@ -72,6 +72,7 @@ void Game::processInput(const sf::Event& event)
 void Game::render()
 {
     m_renderWindow->draw(m_mapSprite);
+    displayFPS();
 
     if (m_player->m_isIdle)
         m_renderWindow->draw(m_player->m_idleSprite);
@@ -82,6 +83,31 @@ void Game::render()
     {
         m_renderWindow->draw(enemy->getSprite());
     }
+}
+
+void Game::displayFPS()
+{
+    static sf::Clock fpsClock;
+    static int frameCount = 0;
+    static float elapsedTime = 0.f;
+    m_font.loadFromFile("C:\\Windows\\Fonts\\arial.ttf");
+	m_fpsText.setFont(m_font);
+	m_fpsText.setPosition(10, 10);
+	m_fpsText.setCharacterSize(18);
+	m_fpsText.setFillColor(sf::Color::Black);
+
+    frameCount++;
+    elapsedTime += fpsClock.restart().asSeconds();
+
+    if (elapsedTime >= 0.1f)
+    {
+        float fps = frameCount / elapsedTime;
+        m_fpsText.setString("FPS: " + std::to_string(static_cast<int>(fps)));
+        frameCount = 0; 
+        elapsedTime = 0.f;
+    }
+
+    m_renderWindow->draw(m_fpsText);
 }
 
 void Game::update(const float& deltaTime)
