@@ -8,16 +8,21 @@ Game::Game(sf::RenderWindow* window, const float& framerate)
     m_enemies.reserve(200);
     m_fpsFont.loadFromFile("C:\\Windows\\Fonts\\arial.ttf");
     m_scoreFont.loadFromFile("C:\\Windows\\Fonts\\arial.ttf");
+    m_hpFont.loadFromFile("C:\\Windows\\Fonts\\arial.ttf");
 
     setMapTexture(window);
     setPlayer();
-    setEnemiesCount(50);
+    setEnemiesCount(40);
 }
 
 Game::~Game()
 {
 	delete m_player;
-	for (Enemy* enemy : m_enemies)
+    //for (Projectile* projectile : m_projectiles)
+    //{
+    //    delete projectile;
+    //}
+    for (Enemy* enemy : m_enemies)
 	{
 		delete enemy;
 	}
@@ -54,9 +59,19 @@ void Game::setEnemiesCount(int count)
     }
 }
 
-void Game::spawnEnemy(sf::RenderWindow* window) 
+void Game::spawnEnemy(sf::RenderWindow* window)
 {
-    if (rand() % 2 == 0) {
+    if (m_score >= 10000 && std::none_of(m_enemies.begin(), m_enemies.end(), [](Enemy* e) { return dynamic_cast<CrabBoss*>(e); })) // EASTER EGG (INVICIBLE BOSS)
+    {
+        for (Enemy* enemy : m_enemies)
+        {
+            delete enemy;
+        }
+        m_enemies.clear();
+
+        m_enemies.push_back(new CrabBoss(window, m_player));
+    }
+    else if (rand() % 2 == 0) {
         m_enemies.push_back(new SharkEnemy(window, m_player));
     }
     else {
@@ -67,15 +82,32 @@ void Game::spawnEnemy(sf::RenderWindow* window)
 void Game::removeDeadEnemies()
 {
     auto it = std::remove_if(m_enemies.begin(), m_enemies.end(), [this](Enemy* enemy)
-        {
+    {
+            bool isCrabBoss = false;
             if (!enemy->isAlive())
             {
+                if (CrabBoss* crabBoss = dynamic_cast<CrabBoss*>(enemy))
+                {
+                    isCrabBoss = true;
+                    m_winText.setString("YOU WIN");
+                    m_winText.setCharacterSize(72);
+                    m_winText.setFillColor(sf::Color::Green);
+                    m_winText.setPosition(
+                        (m_renderWindow->getSize().x - m_winText.getLocalBounds().width) / 2,
+                        (m_renderWindow->getSize().y - m_winText.getLocalBounds().height) / 2
+                    );
+                }
+
                 m_score += 10;
+
+                if (isCrabBoss)
+                    m_score += 90;
+
                 delete enemy;
                 return true;
             }
             return false;
-        });
+    });
 
     m_enemies.erase(it, m_enemies.end());
 }
@@ -110,8 +142,19 @@ void Game::render()
         m_renderWindow->draw(projectile->getShape());
     }
 
+    for (const auto& projectile : m_enemyProjectiles)
+    {
+        m_renderWindow->draw(projectile->getShape());
+    }
+
     displayFPS();
     displayScore();
+    displayHP();
+
+    if (m_isGameOver)
+    {
+        displayGameOver();
+    }
 }
 
 void Game::displayFPS()
@@ -153,8 +196,48 @@ void Game::displayScore()
     m_renderWindow->draw(m_scoreText);
 }
 
+void Game::displayHP()
+{
+	m_HP.setFont(m_hpFont);
+	m_HP.setCharacterSize(18);
+	m_HP.setFillColor(sf::Color::Black);
+    m_HP.setPosition(10, 40);
+    m_HP.setString("H P : " + std::to_string(m_player->getHp()));
+
+    m_renderWindow->draw(m_HP);
+}
+
+void Game::displayGameOver()
+{
+    sf::RectangleShape overlay(sf::Vector2f(m_renderWindow->getSize()));
+    overlay.setFillColor(sf::Color(0, 0, 0, 128));
+
+    m_gameOverText.setFont(m_scoreFont);
+    m_gameOverText.setString("GAME OVER");
+    m_gameOverText.setCharacterSize(72);
+    m_gameOverText.setFillColor(sf::Color::Red);
+
+    sf::FloatRect textBounds = m_gameOverText.getLocalBounds();
+    m_gameOverText.setPosition(
+        (m_renderWindow->getSize().x - textBounds.width) / 2,
+        (m_renderWindow->getSize().y - textBounds.height) / 2
+    );
+
+    m_renderWindow->draw(overlay);
+    m_renderWindow->draw(m_gameOverText);
+}
+
 void Game::update(const float& deltaTime)
 {
+    if (m_isGameOver)
+        return;
+
+    if (!m_player->isAlive())
+    {
+        m_isGameOver = true;
+        return;
+    }
+
     m_player->movement();
     m_player->updateAnim();
     m_player->updateInvulnerabilityEffect();
@@ -182,12 +265,34 @@ void Game::update(const float& deltaTime)
             ++projectileIt;
     }
 
+    auto enemyProjectileIt = m_enemyProjectiles.begin();
+    while (enemyProjectileIt != m_enemyProjectiles.end())
+    {
+        (*enemyProjectileIt)->update();
+
+        if (!m_player->isInvulnerable() &&
+            (*enemyProjectileIt)->getShape().getGlobalBounds().intersects(m_player->getHitbox()))
+        {
+            m_player->takeDamage(5);
+            m_player->setInvulnerable(2.f);
+            enemyProjectileIt = m_enemyProjectiles.erase(enemyProjectileIt);
+            continue;
+        }
+
+        ++enemyProjectileIt;
+    }
+
     removeProjectiles();
 
     for (Enemy* enemy : m_enemies)
     {
         enemy->updateAnim();
         enemy->movement();
+
+        if (SharkEnemy* shark = dynamic_cast<SharkEnemy*>(enemy))
+        {
+            shark->shoot(m_enemyProjectiles);
+        }
 
         if (m_player->getHitbox().intersects(enemy->getHitbox()) && !m_player->isInvulnerable())
         {

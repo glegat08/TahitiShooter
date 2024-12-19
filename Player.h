@@ -31,6 +31,7 @@ public:
 	void setInvulnerable(float duration) override;
 	void updateInvulnerabilityEffect();
 	void shoot(std::vector<std::unique_ptr<PlayerProjectile>>& projectiles, sf::RenderWindow* window);
+	void attacking();
 
 	// OTHER METHOD
 	sf::Vector2f getPlayerPosition();
@@ -48,6 +49,7 @@ public:
 	sf::Sprite m_attackSprite;
 
 	bool m_isIdle;
+	bool m_isAttacking;
 
 private:
 	// ANIMATION
@@ -69,6 +71,5 @@ private:
 	bool m_isInvulnerable = false;
 	sf::FloatRect m_hitbox;
 
-	int m_health;
-	int m_shield;
+	int m_health = 100;
 };

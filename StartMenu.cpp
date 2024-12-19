@@ -1,5 +1,6 @@
 #include "StartMenu.h"
 #include "Game.h"
+#include "Credit.h"
 #include "SceneManager.h"
 
 // START MENU
@@ -90,6 +91,16 @@ void StartMenu::processInput(const sf::Event& event)
                 }
                 m_music.stop();
             }
+			else if (selectedOption == "C R E D I T")
+            {
+				m_sceneManager->setCurrentScene(2);
+                Credit* creditScene = dynamic_cast<Credit*>(m_sceneManager->getCurrentScene());
+                if (creditScene)
+                {
+					creditScene->setAudio();
+                }
+				m_music.stop();
+			}
             else if (selectedOption == "E X I T")
                 m_renderWindow->close();
         }

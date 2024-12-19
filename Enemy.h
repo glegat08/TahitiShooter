@@ -6,6 +6,7 @@
 class Enemy : public GameObject 
 {
 public:
+    Enemy();
     Enemy(sf::RenderWindow* window, Player* player);
     virtual ~Enemy() = default;
 
@@ -49,9 +50,11 @@ public:
     void switchWeapon() override;
     void updateAnim() override;
     void resetAnimation();
+    void shoot(std::vector<std::unique_ptr<EnemyProjectile>>& enemyProjectiles);
 
     sf::Sprite& getSprite() override;
     sf::FloatRect getHitbox() const;
+    sf::Vector2f getSharkCenter();
 
 private:
     void moveAlongBorder();
@@ -71,6 +74,8 @@ private:
     sf::Clock movementSwitchClock;
     bool switchMove = false;
     int move = 1;
+
+    sf::Clock m_shootClock;
 };
 
 // Subclass CrabEnemy
@@ -106,4 +111,31 @@ private:
     int m_numFrames = 4;
 
     void moveTowardsPlayer(const sf::Vector2f& playerPos, float speed);
+};
+
+// CRAB BOSS
+class CrabBoss : public Enemy
+{
+public:
+    CrabBoss(sf::RenderWindow* window, Player* player);
+
+    void setTexture() override;
+    void movement() override;
+    bool isAttacking() override;
+    int getHp() override;
+    int getShield() override;
+    void takeDamage(int damage) override;
+    void setInvulnerable(float duration) override;
+    void getWeapon() override;
+    void switchWeapon() override;
+    void updateAnim() override;
+
+    sf::Sprite& getSprite() override;
+    sf::FloatRect getHitbox() const;
+
+private:
+    sf::Texture m_cBossTexture;
+    sf::Sprite m_cBossSprite;
+
+    void moveLikeACrab(const sf::Vector2u& windowSize);
 };

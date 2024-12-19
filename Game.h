@@ -32,6 +32,7 @@ public:
     void render() override;
     void displayFPS();
     void displayScore();
+    void displayHP();
 
 private:
     sf::Music m_gameMusic;
@@ -51,6 +52,16 @@ private:
     Player* m_player;
     std::vector<Enemy*> m_enemies;
     std::vector<std::unique_ptr<PlayerProjectile>> m_projectiles;
-    //std::vector<std::unique_ptr<EnemyProjectile>>& m_enemyProjectiles;
+    std::vector<std::unique_ptr<EnemyProjectile>> m_enemyProjectiles;
     int m_enemiesCount;
+
+    // GAME OVER
+    void displayGameOver();
+    sf::Text m_gameOverText;
+    sf::Text m_winText;
+    bool m_isGameOver = false;
+
+    // HP
+    sf::Text m_HP;
+    sf::Font m_hpFont;
 };

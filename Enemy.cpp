@@ -9,6 +9,10 @@ enum Corner
 	BOTTOM_RIGHT
 };
 
+Enemy::Enemy()
+{
+}
+
 // Base Enemy Class
 Enemy::Enemy(sf::RenderWindow* window, Player* player)
     : m_renderWindow(window), m_player(player) 
@@ -170,6 +174,23 @@ void SharkEnemy::moveAlongBorder()
         }
         m_sharkSprite.move(0, move * 2.f);
     }
+}
+
+void SharkEnemy::shoot(std::vector<std::unique_ptr<EnemyProjectile>>& enemyProjectiles)
+{
+    if (m_shootClock.getElapsedTime().asSeconds() > 3.f)
+    {
+        sf::Vector2f sharkCenter = getSharkCenter();
+        sf::Vector2f playerPosition = m_player->getPlayerCenter();
+        enemyProjectiles.emplace_back(std::make_unique<EnemyProjectile>(m_renderWindow, sharkCenter, playerPosition));
+        m_shootClock.restart();
+    }
+}
+
+sf::Vector2f SharkEnemy::getSharkCenter()
+{
+    sf::FloatRect bounds = m_sharkSprite.getGlobalBounds();
+    return { bounds.left + bounds.width / 2.f, bounds.top + bounds.height / 2.f };
 }
 
 bool SharkEnemy::isShooting() 
@@ -377,5 +398,116 @@ void CrabEnemy::moveTowardsPlayer(const sf::Vector2f& playerPos, float speed)
         dx /= distance;
         dy /= distance;
         m_crabSprite.move(dx * speed, dy * speed);
+    }
+}
+
+CrabBoss::CrabBoss(sf::RenderWindow* window, Player* player)
+    : Enemy(window, player)
+{
+    int m_health = 150000;
+
+    setTexture();
+    srand(static_cast<unsigned int>(time(nullptr)));
+}
+
+void CrabBoss::setTexture()
+{
+    m_cBossTexture.loadFromFile("resource\\CrabBoss.png");
+    m_cBossSprite.setTexture(m_cBossTexture);
+    m_cBossSprite.setScale(0.5f, 0.5f);
+    m_cBossSprite.setPosition(100.f, 100.f);
+    m_cBossSprite.setRotation(0.f);
+}
+
+void CrabBoss::movement()
+{
+    sf::Vector2u windowSize = m_renderWindow->getSize();
+    moveLikeACrab(windowSize);
+}
+
+bool CrabBoss::isAttacking()
+{
+    return true;
+}
+
+int CrabBoss::getHp()
+{
+    return 0;
+}
+
+int CrabBoss::getShield()
+{
+    return 0;
+}
+
+void CrabBoss::takeDamage(int damage)
+{
+    m_health -= damage;
+    if (m_health <= 0)
+    {
+        m_health = 0;
+    }
+}
+
+void CrabBoss::setInvulnerable(float duration)
+{
+}
+
+void CrabBoss::getWeapon()
+{
+}
+
+void CrabBoss::switchWeapon()
+{
+}
+
+void CrabBoss::updateAnim()
+{
+}
+
+sf::Sprite& CrabBoss::getSprite()
+{
+    return m_cBossSprite;
+}
+
+sf::FloatRect CrabBoss::getHitbox() const
+{
+    return m_cBossSprite.getGlobalBounds();
+}
+
+void CrabBoss::moveLikeACrab(const sf::Vector2u& windowSize)
+{
+    static sf::Clock movementSwitchClock;
+    static bool switchMove = true;
+    static int move = 1;
+
+    sf::Vector2f position = m_cBossSprite.getPosition();
+
+    if (movementSwitchClock.getElapsedTime().asSeconds() > 3.f) {
+        switchMove = (std::rand() % 2 == 0);
+        movementSwitchClock.restart();
+    }
+
+    if (switchMove) {
+        if (position.x <= 0) {
+            move = 10;
+            m_cBossSprite.setRotation(90.f);
+        }
+        else if (position.x >= (windowSize.x - 10.f) - m_cBossSprite.getGlobalBounds().width) {
+            move = -10;
+            m_cBossSprite.setRotation(270.f);
+        }
+        m_cBossSprite.move(move * 2.f, 0);
+    }
+    else {
+        if (position.y <= 0) {
+            move = 10;
+            m_cBossSprite.setRotation(180.f);
+        }
+        else if (position.y >= (windowSize.y - 10.f) - m_cBossSprite.getGlobalBounds().height) {
+            move = -10;
+            m_cBossSprite.setRotation(0.f);
+        }
+        m_cBossSprite.move(0, move * 2.f);
     }
 }

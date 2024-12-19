@@ -1,4 +1,5 @@
 #include "Weapon.h"
+#include "Player.h"
 #include <cmath>
 #define M_PI 3.141592653589793
 
@@ -54,17 +55,30 @@ void PlayerProjectile::movement()
 }
 
 // Enemy Projectile
-EnemyProjectile::EnemyProjectile(sf::RenderWindow* window, const sf::Vector2f& targetPosition)
+EnemyProjectile::EnemyProjectile(sf::RenderWindow* window, const sf::Vector2f& startPosition, const sf::Vector2f& targetPosition)
     : Projectile(window)
 {
-    m_shape.setFillColor(sf::Color::Red);
+    m_shape.setFillColor(sf::Color::Cyan);
+    m_shape.setOutlineThickness(1);
+	m_shape.setOutlineColor(sf::Color::Black);
+    m_shape.setPosition(startPosition);
 
-    sf::Vector2f direction = targetPosition - m_shape.getPosition();
+    sf::Vector2f direction = targetPosition - startPosition;
     float magnitude = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+
     if (magnitude != 0)
-        m_velocity = direction / magnitude * 3.f;
+    {
+        m_velocity = direction / magnitude * 2.f;
+    }
     else
+    {
         m_velocity = { 0.f, 0.f };
+    }
+}
+
+sf::CircleShape& EnemyProjectile::getShape()
+{
+    return m_shape;
 }
 
 void EnemyProjectile::update()
@@ -148,5 +162,56 @@ void Projectile::getWeapon()
 }
 
 void Projectile::switchWeapon()
+{
+}
+
+// Contact Weapon
+ContactWeapon::ContactWeapon(sf::RenderWindow* window, ContactWeapon* contactWeapon)
+{
+    setTexture();
+}
+
+sf::Sprite& ContactWeapon::getSprite()
+{
+    return m_CaCSprite;
+}
+
+sf::CircleShape ContactWeapon::getHitbox() const
+{
+	sf::CircleShape hitbox(m_frameWidth / 2.f);
+	hitbox.setFillColor(sf::Color::Transparent);
+	hitbox.setOutlineColor(sf::Color::Red);
+	hitbox.setOutlineThickness(2.f);
+	hitbox.setPosition(m_CaCSprite.getPosition());
+	return hitbox;
+}
+
+void ContactWeapon::setTexture()
+{
+    m_CaC.loadFromFile("resource\\Sword_Run_Attack_full.png");
+    m_CaCSprite.setTexture(m_CaC);
+    m_CaCSprite.setTextureRect(sf::IntRect(0, 0, m_frameWidth, m_frameHeight));
+    m_CaCSprite.setScale(2.f, 2.f);
+
+    m_CaCSprite.setPosition(player->getPlayerPosition());
+}
+
+void ContactWeapon::updateAnim()
+{
+    if (m_animationCaC.getElapsedTime().asSeconds() > 0.1f)
+    {
+        m_currentFrame = (m_currentFrame + 1) % m_numFrames;
+        int left = m_currentFrame * m_frameWidth;
+        int top = m_currentDirection * m_frameHeight;
+        m_CaCSprite.setTextureRect(sf::IntRect(left, top, m_frameWidth, m_frameHeight));
+        m_animationCaC.restart();
+    }
+}
+
+void ContactWeapon::movement()
+{
+}
+
+void ContactWeapon::position(sf::RenderWindow* window)
 {
 }

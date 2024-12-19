@@ -17,7 +17,7 @@ Player::Player()
 
 bool Player::isAlive()
 {
-    return true;
+    return m_health > 0;
 }
 
 bool Player::isShooting()
@@ -50,15 +50,8 @@ void Player::setTexture()
     m_idleSprite.setTextureRect(sf::IntRect(0, 0, m_frameWidth, m_frameHeight));
     m_idleSprite.setScale(2.f, 2.f);
 
-    // ATTACK
-    m_attackTexture.loadFromFile("resource\\Sword_Run_Attack_full.png");
-	m_attackSprite.setTexture(m_attackTexture);
-	m_attackSprite.setTextureRect(sf::IntRect(0, 0, m_frameWidth, m_frameHeight));
-	m_attackSprite.setScale(2.f, 2.f);
-
     // IDLE POS = MOVEMENT POS
     m_idleSprite.setPosition(getPlayerPosition());
-    m_attackSprite.setPosition(getPlayerPosition());
 }
 
 void Player::updateAnim()
@@ -143,7 +136,7 @@ int Player::getShield()
 
 int Player::getHp()
 {
-    return 0;
+    return m_health;
 }
 
 void Player::takeDamage(int damage)
@@ -205,7 +198,7 @@ void Player::updateInvulnerabilityEffect()
 void Player::shoot(std::vector<std::unique_ptr<PlayerProjectile>>& projectiles, sf::RenderWindow* window)
 {
     static sf::Clock shootClock;
-    if (isShooting() && shootClock.getElapsedTime().asSeconds() > 0.5f)
+    if (isShooting() && shootClock.getElapsedTime().asSeconds() > 0.2f)
     {
         sf::Vector2f mousePosition = window->mapPixelToCoords(sf::Mouse::getPosition(*window));
         sf::Vector2f playerPosition = getPlayerCenter();
@@ -213,6 +206,12 @@ void Player::shoot(std::vector<std::unique_ptr<PlayerProjectile>>& projectiles, 
         projectiles.push_back(std::make_unique<PlayerProjectile>(window, playerPosition, mousePosition));
         shootClock.restart();
     }
+}
+
+void Player::attacking()
+{
+	m_isAttacking = true;
+	m_attackSprite.setPosition(getPlayerPosition());
 }
 
 sf::Vector2f Player::getPlayerPosition()
