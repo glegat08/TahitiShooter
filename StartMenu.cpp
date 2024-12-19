@@ -28,7 +28,7 @@ void StartMenu::setStartText(sf::RenderWindow* window)
     m_gameTitle.setPosition(window->getSize().x / 2.f, 100.f);
 
     // MENU
-    std::vector<std::string> titles = { "P L A Y", "N O T I C E", "E X I T" };
+    std::vector<std::string> titles = { "P L A Y", "C R E D I T", "E X I T" };
 
     m_font.loadFromFile("C:\\Windows\\Fonts\\arial.ttf");
 

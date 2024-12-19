@@ -11,7 +11,7 @@ Game::Game(sf::RenderWindow* window, const float& framerate)
 
     setMapTexture(window);
     setPlayer();
-    setEnemiesCount(1);
+    setEnemiesCount(50);
 }
 
 Game::~Game()
