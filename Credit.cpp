@@ -29,7 +29,7 @@ void Credit::setText()
     m_font.loadFromFile("C:\\Windows\\Fonts\\arial.ttf");
 
     m_creditsText.setFont(m_font);
-    m_creditsText.setString("Game created by:\n\n- Guillaume LE GAT\n- Noe MOCHON");
+    m_creditsText.setString("                 Game created by:\n\n\n- Guillaume LE GAT\n- Noe MOCHON\n\n\n- A LA MEMOIRE DE LENI PERRICHOT -");
     m_creditsText.setCharacterSize(24);
     m_creditsText.setFillColor(sf::Color::White);
 

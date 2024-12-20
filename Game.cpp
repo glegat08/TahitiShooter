@@ -61,7 +61,7 @@ void Game::setEnemiesCount(int count)
 
 void Game::spawnEnemy(sf::RenderWindow* window)
 {
-    if (m_score >= 10000 && std::none_of(m_enemies.begin(), m_enemies.end(), [](Enemy* e) { return dynamic_cast<CrabBoss*>(e); })) // EASTER EGG (INVICIBLE BOSS)
+    if (m_score >= 5000 && std::none_of(m_enemies.begin(), m_enemies.end(), [](Enemy* e) { return dynamic_cast<CrabBoss*>(e); })) // EASTER EGG (INVICIBLE BOSS)
     {
         for (Enemy* enemy : m_enemies)
         {
@@ -117,6 +117,7 @@ void Game::setAudio()
     m_gameMusic.openFromFile("resource\\game.mp3");
     m_gameMusic.setVolume(10);
     m_gameMusic.play();
+    m_gameMusic.setLoop(true);
 }
 
 void Game::processInput(const sf::Event& event)
@@ -276,7 +277,6 @@ void Game::update(const float& deltaTime)
             m_player->takeDamage(5);
             m_player->setInvulnerable(2.f);
             enemyProjectileIt = m_enemyProjectiles.erase(enemyProjectileIt);
-            continue;
         }
 
         ++enemyProjectileIt;

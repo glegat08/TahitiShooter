@@ -60,6 +60,7 @@ void StartMenu::playAudio(sf::RenderWindow* window)
     m_music.openFromFile("resource\\menu.mp3");
     m_music.play();
     m_music.setVolume(50);
+    m_music.setLoop(true);
 }
 
 void StartMenu::processInput(const sf::Event& event)

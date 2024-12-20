@@ -134,6 +134,7 @@ public:
     sf::FloatRect getHitbox() const;
 
 private:
+    int m_Bosshealth;
     sf::Texture m_cBossTexture;
     sf::Sprite m_cBossSprite;
 

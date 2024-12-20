@@ -8,6 +8,7 @@ enum SceneStat
 {
     MENU
     , GAME
+    , CREDIT
     , PAUSE
 };
 
@@ -61,6 +62,8 @@ void SceneManager::processInput()
                         m_currentScene = m_scenes[PAUSE].get();
                     else if (m_currentScene == m_scenes[PAUSE].get())
                         m_currentScene = m_scenes[GAME].get();
+                    else if(m_currentScene == m_scenes[CREDIT].get())
+						m_currentScene = m_scenes[MENU].get();
                 }
             }
 

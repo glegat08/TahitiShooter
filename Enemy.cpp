@@ -178,7 +178,7 @@ void SharkEnemy::moveAlongBorder()
 
 void SharkEnemy::shoot(std::vector<std::unique_ptr<EnemyProjectile>>& enemyProjectiles)
 {
-    if (m_shootClock.getElapsedTime().asSeconds() > 3.f)
+    if (m_shootClock.getElapsedTime().asSeconds() > 6.f)
     {
         sf::Vector2f sharkCenter = getSharkCenter();
         sf::Vector2f playerPosition = m_player->getPlayerCenter();
@@ -404,7 +404,7 @@ void CrabEnemy::moveTowardsPlayer(const sf::Vector2f& playerPos, float speed)
 CrabBoss::CrabBoss(sf::RenderWindow* window, Player* player)
     : Enemy(window, player)
 {
-    int m_health = 150000;
+    int m_Bosshealth = 150000;
 
     setTexture();
     srand(static_cast<unsigned int>(time(nullptr)));
@@ -442,10 +442,10 @@ int CrabBoss::getShield()
 
 void CrabBoss::takeDamage(int damage)
 {
-    m_health -= damage;
-    if (m_health <= 0)
+    m_Bosshealth -= damage;
+    if (m_Bosshealth <= 0)
     {
-        m_health = 0;
+        m_Bosshealth = 0;
     }
 }
 
