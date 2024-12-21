@@ -48,35 +48,35 @@ void Pause::render()
 {
     m_renderWindow->draw(m_pauseScreen);
     m_renderWindow->draw(m_text);
-    m_renderWindow->draw(m_backPauseText);
 
-    displayBackButton();
+    //m_renderWindow->draw(m_backPauseText);
+    //displayBackButton();
 }
 
-void Pause::displayBackButton()
-{
-    sf::Vector2f mousePos = m_renderWindow->mapPixelToCoords(sf::Mouse::getPosition(*m_renderWindow));
-    if (m_backPauseText.getGlobalBounds().contains(mousePos))
-    {
-        m_backPauseText.setFillColor(sf::Color::Yellow);
-    }
-    else
-    {
-        m_backPauseText.setFillColor(sf::Color::White);
-    }
-
-    m_renderWindow->draw(m_backPauseText);
-}
-
-void Pause::handleBackButtonClick(const sf::Vector2f& mousePos)
-{
-    if (m_backPauseText.getGlobalBounds().contains(mousePos))
-    {
-        m_sceneManager->setCurrentScene(0);
-        StartMenu* menuScene = dynamic_cast<StartMenu*>(m_sceneManager->getCurrentScene());
-        if (menuScene)
-        {
-            menuScene->playAudio(m_renderWindow);
-        }
-    }
-}
+//void Pause::displayBackButton()
+//{
+//    sf::Vector2f mousePos = m_renderWindow->mapPixelToCoords(sf::Mouse::getPosition(*m_renderWindow));
+//    if (m_backPauseText.getGlobalBounds().contains(mousePos))
+//    {
+//        m_backPauseText.setFillColor(sf::Color::Yellow);
+//    }
+//    else
+//    {
+//        m_backPauseText.setFillColor(sf::Color::White);
+//    }
+//
+//    m_renderWindow->draw(m_backPauseText);
+//}
+//
+//void Pause::handleBackButtonClick(const sf::Vector2f& mousePos)
+//{
+//    if (m_backPauseText.getGlobalBounds().contains(mousePos))
+//    {
+//        m_sceneManager->setCurrentScene(0);
+//        StartMenu* menuScene = dynamic_cast<StartMenu*>(m_sceneManager->getCurrentScene());
+//        if (menuScene)
+//        {
+//            menuScene->playAudio(m_renderWindow);
+//        }
+//    }
+//}

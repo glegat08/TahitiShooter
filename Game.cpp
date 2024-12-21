@@ -1,6 +1,8 @@
 #include "Game.h"
 #include "Player.h"
 #include "Enemy.h"
+#include "SceneManager.h"
+#include "SceneBase.h"
 
 Game::Game(sf::RenderWindow* window, const float& framerate)
 	: SceneBase(window, framerate)
@@ -145,7 +147,7 @@ void Game::render()
 
     for (const auto& projectile : m_enemyProjectiles)
     {
-        m_renderWindow->draw(projectile->getShape());
+        m_renderWindow->draw(projectile->getSprite());
     }
 
     displayFPS();
@@ -158,26 +160,40 @@ void Game::render()
     }
 }
 
-void Game::displayFPS()
+void Game::displayFPS() // A MODIFIER
 {
-    static sf::Clock fpsClock;
-    static int frameCount = 0;
-    static float elapsedTime = 0.f;
-	m_fpsText.setFont(m_fpsFont);
-	m_fpsText.setPosition(10, 10);
-	m_fpsText.setCharacterSize(18);
-	m_fpsText.setFillColor(sf::Color::Black);
+    m_fpsText.setFont(m_fpsFont);
+    m_fpsText.setPosition(10, 10);
+    m_fpsText.setCharacterSize(18);
+    m_fpsText.setFillColor(sf::Color::Black);
 
-    frameCount++;
-    elapsedTime += fpsClock.restart().asSeconds();
+    const sf::Clock clock;
+    const sf::Clock spawnClock;
+    float startSpawn = spawnClock.getElapsedTime().asMilliseconds();
+    float previous = clock.getElapsedTime().asMilliseconds();
+    auto lag = 0.0;
 
-    if (elapsedTime >= 0.1f)
-    {
-        float fps = frameCount / elapsedTime;
-        m_fpsText.setString("FPS: " + std::to_string(static_cast<int>(fps)));
-        frameCount = 0; 
-        elapsedTime = 0.f;
-    }
+    int counter = 0;
+
+        if (const float lastSpawnTick = spawnClock.getElapsedTime().asMilliseconds(); lastSpawnTick - startSpawn > 1000)
+        {
+            m_fpsText.setString("FPS : " + std::to_string(static_cast<int>(counter)));
+            startSpawn = lastSpawnTick;
+            counter = 0;
+        }
+
+        const float current = clock.getElapsedTime().asMilliseconds();
+        const auto elapsed = current - previous;
+        previous = current;
+        lag += elapsed;
+
+        //while (m_currentScene->getRefreshTime().asMilliseconds() > 0.0
+        //    && lag >= m_currentScene->getRefreshTime().asMilliseconds())
+        //{
+        //    m_currentScene->update(elapsed);
+        //    lag -= m_currentScene->getRefreshTime().asMilliseconds();
+        //    ++counter;
+        //}
 
     m_renderWindow->draw(m_fpsText);
 }
@@ -272,7 +288,7 @@ void Game::update(const float& deltaTime)
         (*enemyProjectileIt)->update();
 
         if (!m_player->isInvulnerable() &&
-            (*enemyProjectileIt)->getShape().getGlobalBounds().intersects(m_player->getHitbox()))
+            (*enemyProjectileIt)->getHitbox().intersects(m_player->getHitbox()))
         {
             m_player->takeDamage(5);
             m_player->setInvulnerable(2.f);

@@ -47,6 +47,7 @@ private:
     // FPS COUNTER
     sf::Font m_fpsFont;
 	sf::Text m_fpsText;
+    SceneBase* m_currentScene;
 
     // PARAMETERS FOR FUNCTIONS
     Player* m_player;

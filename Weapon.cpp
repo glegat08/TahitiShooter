@@ -58,10 +58,14 @@ void PlayerProjectile::movement()
 EnemyProjectile::EnemyProjectile(sf::RenderWindow* window, const sf::Vector2f& startPosition, const sf::Vector2f& targetPosition)
     : Projectile(window)
 {
-    m_shape.setFillColor(sf::Color::Cyan);
-    m_shape.setOutlineThickness(1);
-	m_shape.setOutlineColor(sf::Color::Black);
-    m_shape.setPosition(startPosition);
+	m_water.loadFromFile("resource\\water.png");
+	m_waterSprite.setTexture(m_water);
+	m_waterSprite.setPosition(startPosition);
+    m_waterSprite.setScale(0.1f, 0.1f);
+ //   m_shape.setFillColor(sf::Color::Cyan);
+ //   m_shape.setOutlineThickness(1);
+	//m_shape.setOutlineColor(sf::Color::Black);
+    m_waterSprite.setPosition(startPosition);
 
     sf::Vector2f direction = targetPosition - startPosition;
     float magnitude = std::sqrt(direction.x * direction.x + direction.y * direction.y);
@@ -76,21 +80,41 @@ EnemyProjectile::EnemyProjectile(sf::RenderWindow* window, const sf::Vector2f& s
     }
 }
 
-sf::CircleShape& EnemyProjectile::getShape()
+sf::Sprite& EnemyProjectile::getSprite()
 {
-    return m_shape;
+    return m_waterSprite;
 }
 
 void EnemyProjectile::update()
 {
     movement();
-    m_renderWindow->draw(m_shape);
+    m_renderWindow->draw(m_waterSprite);
 }
 
 void EnemyProjectile::movement()
 {
-    m_shape.move(m_velocity);
+    m_waterSprite.move(m_velocity);
 }
+
+sf::FloatRect EnemyProjectile::getHitbox() const
+{
+    sf::FloatRect spriteBounds = m_waterSprite.getGlobalBounds();
+
+    // FREE TO MODIFY THE HITBOX
+    float offsetX = spriteBounds.width * 0.4f;
+    float offsetY = spriteBounds.height * 0.35f;
+    float reducedWidth = spriteBounds.width - 2 * offsetX;
+    float reducedHeight = spriteBounds.height - 2 * offsetY;
+
+    return sf::FloatRect
+    (
+        spriteBounds.left + offsetX,
+        spriteBounds.top + offsetY,
+        reducedWidth,
+        reducedHeight
+    );
+}
+
 
 // Boss Projectile
 BossProjectile::BossProjectile(sf::RenderWindow* window)

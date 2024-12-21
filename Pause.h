@@ -13,8 +13,8 @@ public:
     void update(const float& deltaTime) override;
     void setPauseText(sf::RenderWindow* window);
     void render() override;
-    void displayBackButton();
-    void handleBackButtonClick(const sf::Vector2f& mousePos);
+    //void displayBackButton();
+    //void handleBackButtonClick(const sf::Vector2f& mousePos);
 
 private:
     SceneManager* m_sceneManager;

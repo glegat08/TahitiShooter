@@ -53,9 +53,11 @@ class EnemyProjectile : public Projectile
 public:
     EnemyProjectile(sf::RenderWindow* window, const sf::Vector2f& startPosition, const sf::Vector2f& targetPosition);
 
-    sf::CircleShape& getShape();
+    sf::Sprite& getSprite();
     void update() override;
     void movement() override;
+    sf::FloatRect getHitbox() const;
+
 
 private:
     sf::Vector2f m_velocity;
@@ -63,6 +65,10 @@ private:
     sf::Vector2f m_position;
     sf::Vector2f direction;
     int projectileSpeed;
+
+    sf::Texture m_water;
+    sf::Sprite m_waterSprite;
+
 };
 
 class BossProjectile : public Projectile
