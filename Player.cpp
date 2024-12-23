@@ -54,6 +54,16 @@ void Player::setTexture()
     m_idleSprite.setPosition(getPlayerPosition());
 }
 
+sf::Sprite& Player::idleSprite()
+{
+    return m_idleSprite;
+}
+
+sf::Sprite& Player::movementSprite()
+{
+    return m_playerSprite;
+}
+
 void Player::updateAnim()
 {
     // IDLE
@@ -223,11 +233,6 @@ sf::Vector2f Player::getPlayerCenter()
 {
     sf::FloatRect bounds = m_playerSprite.getGlobalBounds();
     return { bounds.left + bounds.width / 2.f, bounds.top + bounds.height / 2.f };
-}
-
-const sf::Sprite& Player::getPlayerSprite() const
-{
-    return m_idleSprite;
 }
 
 sf::FloatRect Player::getHitbox() const

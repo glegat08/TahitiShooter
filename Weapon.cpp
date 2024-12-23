@@ -115,6 +115,11 @@ sf::FloatRect EnemyProjectile::getHitbox() const
     );
 }
 
+bool EnemyProjectile::updateProjectiles()
+{
+    return m_lifetimeClock.getElapsedTime().asSeconds() >= m_maxLifetime;
+}
+
 
 // Boss Projectile
 BossProjectile::BossProjectile(sf::RenderWindow* window)

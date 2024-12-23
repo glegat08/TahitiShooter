@@ -66,7 +66,7 @@ private:
 
     float m_directionX;
     float m_directionY;
-    float m_moveSpeed = 2.f;
+    float m_moveSpeed = 70.f;
 
     sf::Texture m_sharkTexture;
 	sf::Sprite m_sharkSprite;
@@ -76,6 +76,7 @@ private:
     int move = 1;
 
     sf::Clock m_shootClock;
+    sf::Clock m_rotationClock;
 };
 
 // Subclass CrabEnemy

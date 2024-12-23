@@ -57,6 +57,7 @@ public:
     void update() override;
     void movement() override;
     sf::FloatRect getHitbox() const;
+    bool updateProjectiles();
 
 
 private:
@@ -68,6 +69,9 @@ private:
 
     sf::Texture m_water;
     sf::Sprite m_waterSprite;
+
+    sf::Clock m_lifetimeClock;
+    const float m_maxLifetime = 2.5f;
 
 };
 

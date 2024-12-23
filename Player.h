@@ -36,18 +36,13 @@ public:
 	// OTHER METHOD
 	sf::Vector2f getPlayerPosition();
 	sf::Vector2f getPlayerCenter();
-	const sf::Sprite& getPlayerSprite() const;
 	sf::FloatRect getHitbox() const;
+	sf::Sprite& idleSprite();
+	sf::Sprite& movementSprite();
+
+
 
 	// PUBLIC PARAMETERS
-	sf::Texture m_texture;
-	sf::Texture m_idleTexture;
-	sf::Texture m_attackTexture;
-
-	sf::Sprite m_playerSprite;
-	sf::Sprite m_idleSprite;
-	sf::Sprite m_attackSprite;
-
 	bool m_isIdle;
 	bool m_isAttacking;
 
@@ -72,4 +67,12 @@ private:
 	sf::FloatRect m_hitbox;
 
 	int m_health = 100;
+
+	sf::Texture m_texture;
+	sf::Texture m_idleTexture;
+	sf::Texture m_attackTexture;
+
+	sf::Sprite m_playerSprite;
+	sf::Sprite m_idleSprite;
+	sf::Sprite m_attackSprite;
 };
