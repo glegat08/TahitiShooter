@@ -1,14 +1,22 @@
 #include "Game.h"
 #include "Player.h"
 #include "Enemy.h"
+#include "SceneManager.h"
+#include "SceneBase.h"
 
 Game::Game(sf::RenderWindow* window, const float& framerate)
-	: SceneBase(window, framerate)
+    : SceneBase(window, framerate)
 {
     m_enemies.reserve(200);
     m_fpsFont.loadFromFile("C:\\Windows\\Fonts\\arial.ttf");
     m_scoreFont.loadFromFile("C:\\Windows\\Fonts\\arial.ttf");
     m_hpFont.loadFromFile("C:\\Windows\\Fonts\\arial.ttf");
+
+    m_fpsStartTime = m_fpsClock.getElapsedTime().asMilliseconds();
+    m_fpsText.setFont(m_fpsFont);
+    m_fpsText.setPosition(10, 10);
+    m_fpsText.setCharacterSize(18);
+    m_fpsText.setFillColor(sf::Color::Black);
 
     setMapTexture(window);
     setPlayer();
@@ -17,15 +25,20 @@ Game::Game(sf::RenderWindow* window, const float& framerate)
 
 Game::~Game()
 {
-	delete m_player;
-    //for (Projectile* projectile : m_projectiles)
-    //{
-    //    delete projectile;
-    //}
+    for (Player* player : m_players)
+    {
+        delete player;
+    }
     for (Enemy* enemy : m_enemies)
-	{
-		delete enemy;
-	}
+    {
+        delete enemy;
+    }
+
+    //for (PlayerProjectile* projectile : m_projectiles)
+//{
+//    delete projectile;
+//}
+
 }
 
 void Game::setMapTexture(sf::RenderWindow* window)
@@ -36,8 +49,23 @@ void Game::setMapTexture(sf::RenderWindow* window)
 
 void Game::setPlayer()
 {
-    m_player = new Player();
-    m_player->m_playerSprite.setPosition(m_renderWindow->getSize().x / 2.f, m_renderWindow->getSize().y / 2.f);
+    // Clear existing players if any
+    for (Player* player : m_players)
+    {
+        delete player;
+    }
+    m_players.clear();
+
+    // Create new players
+    for (size_t i = 0; i < m_maxPlayers; ++i)
+    {
+        Player* player = new Player();
+        player->movementSprite().setPosition(
+            m_renderWindow->getSize().x / 2.f,
+            m_renderWindow->getSize().y / 2.f
+        );
+        m_players.push_back(player);
+    }
 }
 
 void Game::removeProjectiles()
@@ -61,28 +89,31 @@ void Game::setEnemiesCount(int count)
 
 void Game::spawnEnemy(sf::RenderWindow* window)
 {
-    if (m_score >= 10000 && std::none_of(m_enemies.begin(), m_enemies.end(), [](Enemy* e) { return dynamic_cast<CrabBoss*>(e); })) // EASTER EGG (INVICIBLE BOSS)
+    for (Player* player : m_players)
     {
-        for (Enemy* enemy : m_enemies)
+        if (m_score >= 5000 && std::none_of(m_enemies.begin(), m_enemies.end(), [](Enemy* e) { return dynamic_cast<CrabBoss*>(e); })) // EASTER EGG (INVICIBLE BOSS)
         {
-            delete enemy;
-        }
-        m_enemies.clear();
+            for (Enemy* enemy : m_enemies)
+            {
+                delete enemy;
+            }
+            m_enemies.clear();
 
-        m_enemies.push_back(new CrabBoss(window, m_player));
-    }
-    else if (rand() % 2 == 0) {
-        m_enemies.push_back(new SharkEnemy(window, m_player));
-    }
-    else {
-        m_enemies.push_back(new CrabEnemy(window, m_player));
+            m_enemies.push_back(new CrabBoss(window, player));
+        }
+        else if (rand() % 2 == 0) {
+            m_enemies.push_back(new SharkEnemy(window, player));
+        }
+        else {
+            m_enemies.push_back(new CrabEnemy(window, player));
+        }
     }
 }
 
 void Game::removeDeadEnemies()
 {
     auto it = std::remove_if(m_enemies.begin(), m_enemies.end(), [this](Enemy* enemy)
-    {
+        {
             bool isCrabBoss = false;
             if (!enemy->isAlive())
             {
@@ -107,7 +138,7 @@ void Game::removeDeadEnemies()
                 return true;
             }
             return false;
-    });
+        });
 
     m_enemies.erase(it, m_enemies.end());
 }
@@ -117,6 +148,7 @@ void Game::setAudio()
     m_gameMusic.openFromFile("resource\\game.mp3");
     m_gameMusic.setVolume(10);
     m_gameMusic.play();
+    m_gameMusic.setLoop(true);
 }
 
 void Game::processInput(const sf::Event& event)
@@ -127,10 +159,13 @@ void Game::render()
 {
     m_renderWindow->draw(m_mapSprite);
 
-    if (m_player->m_isIdle)
-        m_renderWindow->draw(m_player->m_idleSprite);
-    else
-        m_renderWindow->draw(m_player->m_playerSprite);
+    for (Player* player : m_players)
+    {
+        if (player->m_isIdle)
+            m_renderWindow->draw(player->idleSprite());
+        else
+            m_renderWindow->draw(player->movementSprite());
+    }
 
     for (Enemy* enemy : m_enemies)
     {
@@ -144,7 +179,7 @@ void Game::render()
 
     for (const auto& projectile : m_enemyProjectiles)
     {
-        m_renderWindow->draw(projectile->getShape());
+        m_renderWindow->draw(projectile->getSprite());
     }
 
     displayFPS();
@@ -159,32 +194,13 @@ void Game::render()
 
 void Game::displayFPS()
 {
-    static sf::Clock fpsClock;
-    static int frameCount = 0;
-    static float elapsedTime = 0.f;
-	m_fpsText.setFont(m_fpsFont);
-	m_fpsText.setPosition(10, 10);
-	m_fpsText.setCharacterSize(18);
-	m_fpsText.setFillColor(sf::Color::Black);
-
-    frameCount++;
-    elapsedTime += fpsClock.restart().asSeconds();
-
-    if (elapsedTime >= 0.1f)
-    {
-        float fps = frameCount / elapsedTime;
-        m_fpsText.setString("FPS: " + std::to_string(static_cast<int>(fps)));
-        frameCount = 0; 
-        elapsedTime = 0.f;
-    }
-
     m_renderWindow->draw(m_fpsText);
 }
 
 void Game::displayScore()
 {
     sf::RectangleShape rec(sf::Vector2f(250.f, 50.f));
-	rec.setPosition((m_renderWindow->getSize().x / 2) - 120, 0);
+    rec.setPosition((m_renderWindow->getSize().x / 2) - 120, 0);
     rec.setFillColor(sf::Color(0, 0, 0, 128));
     m_scoreText.setFont(m_scoreFont);
     m_scoreText.setCharacterSize(24);
@@ -198,13 +214,16 @@ void Game::displayScore()
 
 void Game::displayHP()
 {
-	m_HP.setFont(m_hpFont);
-	m_HP.setCharacterSize(18);
-	m_HP.setFillColor(sf::Color::Black);
-    m_HP.setPosition(10, 40);
-    m_HP.setString("H P : " + std::to_string(m_player->getHp()));
+    for (Player* player : m_players)
+    {
+        m_HP.setFont(m_hpFont);
+        m_HP.setCharacterSize(18);
+        m_HP.setFillColor(sf::Color::Black);
+        m_HP.setPosition(10, 40);
+        m_HP.setString("H P : " + std::to_string(player->getHp()));
 
-    m_renderWindow->draw(m_HP);
+        m_renderWindow->draw(m_HP);
+    }
 }
 
 void Game::displayGameOver()
@@ -229,82 +248,98 @@ void Game::displayGameOver()
 
 void Game::update(const float& deltaTime)
 {
+    float currentTime = m_fpsClock.getElapsedTime().asMilliseconds();
+    if (currentTime - m_fpsStartTime > 1000)
+    {
+        m_fpsText.setString("FPS: " + std::to_string(m_fpsCounter));
+        m_fpsStartTime = currentTime;
+        m_fpsCounter = 0;
+    }
+    m_fpsCounter++;
+
     if (m_isGameOver)
         return;
 
-    if (!m_player->isAlive())
+    for (Player* player : m_players)
     {
-        m_isGameOver = true;
-        return;
-    }
-
-    m_player->movement();
-    m_player->updateAnim();
-    m_player->updateInvulnerabilityEffect();
-    m_player->shoot(m_projectiles, m_renderWindow);
-
-    auto projectileIt = m_projectiles.begin();
-    while (projectileIt != m_projectiles.end())
-    {
-        (*projectileIt)->update();
-        bool projectileHit = false;
-
-        for (Enemy* enemy : m_enemies)
+        if (!player->isAlive())
         {
-            if ((*projectileIt)->getShape().getGlobalBounds().intersects(enemy->getHitbox()))
+            m_isGameOver = true;
+            return;
+        }
+
+        player->movement();
+        player->updateAnim();
+        player->updateInvulnerabilityEffect();
+        player->shoot(m_projectiles, m_renderWindow);
+
+        auto projectileIterator = m_projectiles.begin();
+        while (projectileIterator != m_projectiles.end())
+        {
+            (*projectileIterator)->update();
+            bool projectileHit = false;
+
+            for (Enemy* enemy : m_enemies)
             {
-                enemy->takeDamage(25);
-                projectileHit = true;
-                break;
+                if ((*projectileIterator)->getShape().getGlobalBounds().intersects(enemy->getHitbox()))
+                {
+                    enemy->takeDamage(25);
+                    projectileHit = true;
+                    break;
+                }
+            }
+
+            if (projectileHit)
+                projectileIterator = m_projectiles.erase(projectileIterator);
+            else
+                ++projectileIterator;
+        }
+
+        auto enemyProjectileIterator = m_enemyProjectiles.begin();
+        while (enemyProjectileIterator != m_enemyProjectiles.end())
+        {
+            (*enemyProjectileIterator)->update();
+            bool shouldDestroy = (*enemyProjectileIterator)->updateProjectiles();
+
+            if (shouldDestroy ||
+                (!player->isInvulnerable() &&
+                    (*enemyProjectileIterator)->getHitbox().intersects(player->getHitbox())))
+            {
+                enemyProjectileIterator = m_enemyProjectiles.erase(enemyProjectileIterator);
+                if (!shouldDestroy) {
+                    player->takeDamage(5);
+                    player->setInvulnerable(2.f);
+                }
+            }
+            else {
+                ++enemyProjectileIterator;
             }
         }
 
-        if (projectileHit)
-            projectileIt = m_projectiles.erase(projectileIt);
-        else
-            ++projectileIt;
-    }
+        removeProjectiles();
 
-    auto enemyProjectileIt = m_enemyProjectiles.begin();
-    while (enemyProjectileIt != m_enemyProjectiles.end())
-    {
-        (*enemyProjectileIt)->update();
-
-        if (!m_player->isInvulnerable() &&
-            (*enemyProjectileIt)->getShape().getGlobalBounds().intersects(m_player->getHitbox()))
+        for (Enemy* enemy : m_enemies)
         {
-            m_player->takeDamage(5);
-            m_player->setInvulnerable(2.f);
-            enemyProjectileIt = m_enemyProjectiles.erase(enemyProjectileIt);
-            continue;
+            enemy->updateAnim();
+            enemy->movement();
+
+            if (SharkEnemy* shark = dynamic_cast<SharkEnemy*>(enemy))
+            {
+                shark->shoot(m_enemyProjectiles);
+            }
+
+            if (player->getHitbox().intersects(enemy->getHitbox()) && !player->isInvulnerable())
+            {
+                player->takeDamage(10);
+                player->setInvulnerable(2.f);
+            }
         }
 
-        ++enemyProjectileIt;
-    }
+        removeDeadEnemies();
 
-    removeProjectiles();
-
-    for (Enemy* enemy : m_enemies)
-    {
-        enemy->updateAnim();
-        enemy->movement();
-
-        if (SharkEnemy* shark = dynamic_cast<SharkEnemy*>(enemy))
+        while (m_enemies.size() < m_enemiesCount)
         {
-            shark->shoot(m_enemyProjectiles);
+            spawnEnemy(m_renderWindow);
         }
-
-        if (m_player->getHitbox().intersects(enemy->getHitbox()) && !m_player->isInvulnerable())
-        {
-            m_player->takeDamage(10);
-            m_player->setInvulnerable(2.f);
-        }
-    }
-
-    removeDeadEnemies();
-
-    while (m_enemies.size() < m_enemiesCount)
-    {
-        spawnEnemy(m_renderWindow);
     }
 }

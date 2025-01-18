@@ -17,8 +17,8 @@ SceneManager::SceneManager(const int& width, const int& height, const std::strin
 {
     m_scenes.push_back(std::make_unique<StartMenu>(m_window.get(), this, 30.f));
     m_scenes.push_back(std::make_unique<Game>(m_window.get(), 60.f));
-	m_scenes.push_back(std::make_unique<Credit>(m_window.get(), this, 30.f));
     m_scenes.push_back(std::make_unique<Pause>(m_window.get(), 30.f));
+	m_scenes.push_back(std::make_unique<Credit>(m_window.get(), this, 30.f));
     m_currentScene = m_scenes.front().get();
 }
 

@@ -53,9 +53,12 @@ class EnemyProjectile : public Projectile
 public:
     EnemyProjectile(sf::RenderWindow* window, const sf::Vector2f& startPosition, const sf::Vector2f& targetPosition);
 
-    sf::CircleShape& getShape();
+    sf::Sprite& getSprite();
     void update() override;
     void movement() override;
+    sf::FloatRect getHitbox() const;
+    bool updateProjectiles();
+
 
 private:
     sf::Vector2f m_velocity;
@@ -63,6 +66,13 @@ private:
     sf::Vector2f m_position;
     sf::Vector2f direction;
     int projectileSpeed;
+
+    sf::Texture m_water;
+    sf::Sprite m_waterSprite;
+
+    sf::Clock m_lifetimeClock;
+    const float m_maxLifetime = 2.5f;
+
 };
 
 class BossProjectile : public Projectile
@@ -101,11 +111,11 @@ protected:
     sf::RenderWindow* m_renderWindow;
     ContactWeapon* m_contactWeapon;
     sf::Texture m_CaC;
-	sf::Sprite m_CaCSprite;
-	sf::CircleShape m_hitbox;
-	float m_moveSpeed = 1.f;
-	float m_directionX;
-	float m_directionY;
+    sf::Sprite m_CaCSprite;
+    sf::CircleShape m_hitbox;
+    float m_moveSpeed = 1.f;
+    float m_directionX;
+    float m_directionY;
 
     Player* player;
 };

@@ -41,19 +41,26 @@ private:
 
     // SCORE
     sf::Font m_scoreFont;
-	sf::Text m_scoreText;
-	int m_score = 0;
+    sf::Text m_scoreText;
+    int m_score = 0;
 
     // FPS COUNTER
     sf::Font m_fpsFont;
-	sf::Text m_fpsText;
+    sf::Text m_fpsText;
+    SceneBase* m_currentScene;
 
     // PARAMETERS FOR FUNCTIONS
-    Player* m_player;
+    std::vector<Player*> m_players;
+    size_t m_maxPlayers = 1;
+
     std::vector<Enemy*> m_enemies;
     std::vector<std::unique_ptr<PlayerProjectile>> m_projectiles;
     std::vector<std::unique_ptr<EnemyProjectile>> m_enemyProjectiles;
     int m_enemiesCount;
+
+    sf::Clock m_fpsClock;
+    int m_fpsCounter = 0;
+    float m_fpsStartTime = 0.f;
 
     // GAME OVER
     void displayGameOver();

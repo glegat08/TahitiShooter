@@ -12,7 +12,7 @@ enum Direction
 
 Player::Player()
 {
-	setTexture();
+    setTexture();
 }
 
 bool Player::isAlive()
@@ -39,7 +39,7 @@ bool Player::isInvulnerable()
 void Player::setTexture()
 {
     // MOVEMENT
-	m_texture.loadFromFile("resource\\Unarmed_Run_full.png");
+    m_texture.loadFromFile("resource\\Unarmed_Run_full.png");
     m_playerSprite.setTexture(m_texture);
     m_playerSprite.setTextureRect(sf::IntRect(0, 0, m_frameWidth, m_frameHeight));
     m_playerSprite.setScale(2.f, 2.f);
@@ -52,6 +52,16 @@ void Player::setTexture()
 
     // IDLE POS = MOVEMENT POS
     m_idleSprite.setPosition(getPlayerPosition());
+}
+
+sf::Sprite& Player::idleSprite()
+{
+    return m_idleSprite;
+}
+
+sf::Sprite& Player::movementSprite()
+{
+    return m_playerSprite;
 }
 
 void Player::updateAnim()
@@ -210,24 +220,19 @@ void Player::shoot(std::vector<std::unique_ptr<PlayerProjectile>>& projectiles, 
 
 void Player::attacking()
 {
-	m_isAttacking = true;
-	m_attackSprite.setPosition(getPlayerPosition());
+    m_isAttacking = true;
+    m_attackSprite.setPosition(getPlayerPosition());
 }
 
 sf::Vector2f Player::getPlayerPosition()
 {
-	return m_playerSprite.getPosition();
+    return m_playerSprite.getPosition();
 }
 
 sf::Vector2f Player::getPlayerCenter()
 {
     sf::FloatRect bounds = m_playerSprite.getGlobalBounds();
     return { bounds.left + bounds.width / 2.f, bounds.top + bounds.height / 2.f };
-}
-
-const sf::Sprite& Player::getPlayerSprite() const
-{
-    return m_idleSprite;
 }
 
 sf::FloatRect Player::getHitbox() const

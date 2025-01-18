@@ -3,7 +3,7 @@
 #include "GameObject.h"
 #include "Player.h"
 
-class Enemy : public GameObject 
+class Enemy : public GameObject
 {
 public:
     Enemy();
@@ -34,7 +34,7 @@ protected:
 
 
 // Subclass SharkEnemy
-class SharkEnemy : public Enemy 
+class SharkEnemy : public Enemy
 {
 public:
     SharkEnemy(sf::RenderWindow* window, Player* player);
@@ -66,20 +66,21 @@ private:
 
     float m_directionX;
     float m_directionY;
-    float m_moveSpeed = 2.f;
+    float m_moveSpeed = 70.f;
 
     sf::Texture m_sharkTexture;
-	sf::Sprite m_sharkSprite;
+    sf::Sprite m_sharkSprite;
 
     sf::Clock movementSwitchClock;
     bool switchMove = false;
     int move = 1;
 
     sf::Clock m_shootClock;
+    sf::Clock m_rotationClock;
 };
 
 // Subclass CrabEnemy
-class CrabEnemy : public Enemy 
+class CrabEnemy : public Enemy
 {
 public:
     CrabEnemy(sf::RenderWindow* window, Player* player);
@@ -100,10 +101,10 @@ public:
     sf::FloatRect getHitbox() const;
 
 private:
-	sf::Texture m_crabTexture;
+    sf::Texture m_crabTexture;
     sf::Texture m_crabAttack;
     sf::Sprite m_crabAttackSprite;
-	sf::Sprite m_crabSprite;
+    sf::Sprite m_crabSprite;
     sf::Clock m_animationClock;
     int m_currentFrame = 0;
     int m_frameWidth = 55;
@@ -134,6 +135,7 @@ public:
     sf::FloatRect getHitbox() const;
 
 private:
+    int m_Bosshealth;
     sf::Texture m_cBossTexture;
     sf::Sprite m_cBossSprite;
 
